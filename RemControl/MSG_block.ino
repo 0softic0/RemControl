@@ -48,3 +48,38 @@ void MSG_centerOK() {
 	lcd.setCursor(1, 0);
 	lcd.print("OK");
 }
+void MSG_joyCenter() {
+	lcd.clear();
+	// Джойстик в центре
+	lcd.createChar(1, bukva_D);
+	lcd.createChar(2, bukva_ZH);
+	lcd.createChar(3, bukva_IY);
+	lcd.createChar(4, bukva_I);
+	lcd.createChar(5, bukva_TS);
+	lcd.setCursor(0, 0);
+	lcd.print("\1\2O\3CT\4K");
+	lcd.setCursor(0, 1);
+	lcd.print("B \5EHTPE");
+}
+
+void MSG_joyTest() {
+	lcd.clear();
+	// ТЕСТИРОВАНИЕ
+	lcd.createChar(1, bukva_I);
+	lcd.setCursor(0, 0);
+	lcd.print("TECT\1POBAH\1E");
+}
+void MSG_readData() {
+	// Читаем настройки
+	lcd.clear();
+	lcd.createChar(1, bukva_CH);
+	lcd.createChar(2, bukva_I);
+	lcd.createChar(3, bukva_IY);
+	lcd.setCursor(0, 0);
+	lcd.print("\1\2TAEM HACTPO\3K\2");
+	lcd.setCursor(0, 1);
+	for (size_t i = 0; i < 16; i++)
+	{
+		lcd.print("*"); delay(i*30);
+	}
+}
