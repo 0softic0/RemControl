@@ -22,16 +22,16 @@
  A4	-	LCD 1602	SDA
  A5	-	LCD 1602	SCL
  A6
- A7
+ A7 - battaty voltage
  D01
  D02
  D03	-	LCD 1602 Light
  D04
- D05
- D06	-	Button	Velocity-
- D07	-	Button	Velocity+
- D08	-	Button	inicJoy
- D09	-	NRF	CE
+ D05															 CE
+ D06	-	Button	Velocity-					 CSN
+ D07	-	Button	Velocity+							Vel-
+ D08	-	Button	inicJoy								Vel+
+ D09	-	NRF	CE												inc
  D10	-	NRF	CSN
  D11	-	NRF	MOSI
  D12	-	NRF	MISO
@@ -54,10 +54,12 @@ int bX = A3;// A5;
 int fY = A1;// A3;
 int bY = A2;// A4;
 
+int pinVolt = A7;	//	подключенный через делитель на основное напряжение (6,04 В - 630 единиц)
+
 /// подключение кнопок
-int signalPin = 8;		//	пин инициализации джойстика
-int velPunPlus = 7;		//	увеличение максимальной скорости
-int velPinMinus = 6;	//	снижение максимальной скорости
+int signalPin = 9;// 8;		//	пин инициализации джойстика
+uint8_t velPinPlus = 8;// 7;		//	увеличение максимальной скорости
+uint8_t velPinMinus = 7;// 6;	//	снижение максимальной скорости
 
 Joy2_2axis myJoy;
 X_Y_data workData;
@@ -68,20 +70,32 @@ word addresLCD1602 = 0x38;
 LiquidCrystal_I2C lcd(addresLCD1602, 16, 2); // Задаем адрес и размерность дисплея.
 int lcdLight = 3;
 
-
+/* параметры управления скоростью: 1-5
+	 5 - 1024
+	 4	 640
+	 3	 384
+	 2	 256
+	 1 - 128
+*/
+int maxPeredacha = 5;
+int maxWorkSpeed[] = { 0,128,256,384,640,1024 };
+int peredacha = 3;
+int maxSpeed = 384;
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(9600);
 	printf_begin();
 	
-	pinMode(signalPin, INPUT_PULLUP);	//	перевели в высокоимпедансное состояние
-	myJoy.setPinAxis(fX, bX, fY, bY);	//	определили рабочие пины для джойстика
+	pinMode(signalPin, INPUT_PULLUP);		//	перевели в высокоимпедансное состояние
+	pinMode(velPinMinus, INPUT_PULLUP);	//	снижение скорости
+	pinMode(velPinPlus, INPUT_PULLUP);	//	увеличение скорости
+	myJoy.setPinAxis(fX, bX, fY, bY);		//	определили рабочие пины для джойстика
 
 	pinMode(lcdLight, OUTPUT);	//	управление подсветкой
 
 	lcd.init();	//	Инициализация lcd дисплея
 	digitalWrite(lcdLight, HIGH);
-	digitalWrite(lcdLight, HIGH);
+//	digitalWrite(lcdLight, HIGH);
 	MSG_privet(); delay(2000);
 	MSG_joyCenter(); delay(1500);
 	MSG_joyTest();
@@ -101,9 +115,9 @@ void setup() {
 
 	EEPROM.get(0, workSaveData);	// считали из памяти
 	MSG_readData(); delay(2000);
-	//
+	
 	//	проверка совпадения текущего центрального расположения и ранее записанного
-	//
+
 	int GoodJoy = 0;
 	if (
 		(workSaveData.X.F.center > (searthCenter.X.F + errAxis.X.F)) ||
@@ -122,6 +136,11 @@ void setup() {
 		// у нас проблеммы с джойстиком!!! надо определиться, можно ли двигаться?
 		// нужно определить критерии и, возможно, нужно еще и проверять как оно было до этого
 		// т.к. если проведена инициализация джойстика - переменная будет равна "0"
+		MSG_errorJoy();
+		delay(2000);
+		MSG_changeJoy();
+	} else {
+ 		// система в нормальном состоянии
 	}
 
 	// переходим к установке параметров
@@ -132,7 +151,7 @@ void setup() {
 	printf("начали \n");
 
 
-	lcd.backlight();                // Включение подсветки дисплея
+/*	lcd.backlight();                // Включение подсветки дисплея
 	MSG_inicialization();
 	delay(2000);
 	MSG_centerOK();
@@ -143,12 +162,40 @@ void setup() {
 	delay(2000);
 	MSG_inicialization();
 	delay(2000);
-	MSG_centerOK();
+	MSG_centerOK();	*/
+	lcd.clear();
+	lcd.setCursor(0, 1);
+	lcd.print("Max speed: ");
+	lcd.print(peredacha);
+	delay(2000);
+	digitalWrite(lcdLight, LOW);
 
+	
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
+	// проверяем нажатие какой либо клавиши (нужно избавиться от дребезга)
+//	Serial.println(digitalRead(velPinMinus));
+	if (digitalRead(velPinMinus)==LOW){
+		peredacha++;
+		if (peredacha > maxPeredacha) { peredacha = maxPeredacha; }
+		lcd.clear();
+		lcd.setCursor(0, 1);
+		lcd.print("Max speed: ");
+		lcd.print(peredacha);
+
+		delay(200);
+	}
+	if (digitalRead(velPinPlus) == LOW) {
+		peredacha--;
+		if (peredacha < 1) { peredacha = 1; }
+		lcd.clear();
+		lcd.setCursor(0, 1);
+		lcd.print("Max speed: ");
+		lcd.print(peredacha);
+		delay(200);
+	}
 	myJoy.readData();
 	myJoy.calcData();
 	X_Y_data myLocal = myJoy.getData();
@@ -171,10 +218,10 @@ void loop() {
 	//	центрируем и раскладываем в +/- для получения ровного квадрата от -1024 до 1024
 	myLocal.X = myLocal.X - workSaveData.X.F.center;
 	myLocal.Y = myLocal.Y - workSaveData.Y.F.center;
-	if (myLocal.X >= 0) { myLocal.X = map(myLocal.X, 0, (xMax - workSaveData.X.F.center), 0, 1024); }
-	if (myLocal.X < 0) { myLocal.X = map(myLocal.X, (xMin - workSaveData.X.F.center), 0, -1024, 0); }
-	if (myLocal.Y >= 0) { myLocal.Y = map(myLocal.Y, 0, (xMax - workSaveData.Y.F.center), 0, 1024); }
-	if (myLocal.Y < 0) { myLocal.Y = map(myLocal.Y, (xMin - workSaveData.Y.F.center), 0, -1024, 0); }
+	if (myLocal.X >= 0) { myLocal.X = map(myLocal.X, 0, (xMax - workSaveData.X.F.center), 0, maxWorkSpeed[peredacha]); }
+	if (myLocal.X < 0) { myLocal.X = map(myLocal.X, (xMin - workSaveData.X.F.center), 0, -maxWorkSpeed[peredacha], 0); }
+	if (myLocal.Y >= 0) { myLocal.Y = map(myLocal.Y, 0, (xMax - workSaveData.Y.F.center), 0, maxWorkSpeed[peredacha]); }
+	if (myLocal.Y < 0) { myLocal.Y = map(myLocal.Y, (xMin - workSaveData.Y.F.center), 0, -maxWorkSpeed[peredacha], 0); }
 
 	//	printf("Данные ось X=%d \t ERR=%d \t ось Y=%d \t ERR=%d \n", myLocal.X, myLocal.errX, myLocal.Y, myLocal.errY);
 
@@ -186,11 +233,11 @@ void loop() {
 	bortL = bortL - myLocal.X; bortR = bortR - myLocal.X;
 
 	// нормализуем по максимальному значению не более +/- 1024
-	if (bortL > 1024) { bortL = 1024; }
-	if (bortL < -1024) { bortL = -1024; }
-	if (bortR > 1024) { bortR = 1024; }
-	if (bortR < -1024) { bortR = -1024; }
-	// printf("Левая = %d \t Правая=%d \n", bortL, bortR);
+	if (bortL > maxWorkSpeed[peredacha]) { bortL = maxWorkSpeed[peredacha]; }
+	if (bortL < -maxWorkSpeed[peredacha]) { bortL = -maxWorkSpeed[peredacha]; }
+	if (bortR > maxWorkSpeed[peredacha]) { bortR = maxWorkSpeed[peredacha]; }
+	if (bortR < -maxWorkSpeed[peredacha]) { bortR = -maxWorkSpeed[peredacha]; }
+	printf("Левая = %d \t Правая=%d \n", bortL, bortR);
 
 	//	workData = myLocal;
 

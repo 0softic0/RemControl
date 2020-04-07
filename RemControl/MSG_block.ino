@@ -19,14 +19,16 @@ byte bukva_IYI[8] = { B10001,B10001,B10001,B11001,B10101,B10101,B11001,B00000, }
 byte bukva_Yu[8] = { B10010,B10101,B10101,B11101,B10101,B10101,B10010,B00000, }; // Буква "Ю"
 byte bukva_Ya[8] = { B01111,B10001,B10001,B01111,B00101,B01001,B10001,B00000, }; // Буква "Я"  
 
-
+// Старт Дата-версия
 void MSG_privet() {
 	lcd.clear();
 	lcd.setCursor(0, 0);
 	lcd.print("CTAPT");
+	lcd.setCursor(0, 1);
 	lcd.print("2020-04-01-001");
 }
 
+// ИНИЦИАЛИЗАЦИЯ
 void MSG_inicialization() {
 	lcd.clear();
 	lcd.createChar(1, bukva_I);
@@ -39,6 +41,7 @@ void MSG_inicialization() {
 	lcd.print("\1H\1\2\1A\3\1\4A\2\1\5");
 }
 
+// ЦЕНТР ОК
 void MSG_centerOK() {
 	lcd.clear();
 	lcd.createChar(1, bukva_TS);
@@ -48,6 +51,8 @@ void MSG_centerOK() {
 	lcd.setCursor(1, 0);
 	lcd.print("OK");
 }
+
+// ДЖОЙСТИК В ЦЕНТРЕ
 void MSG_joyCenter() {
 	lcd.clear();
 	// Джойстик в центре
@@ -62,6 +67,7 @@ void MSG_joyCenter() {
 	lcd.print("B \5EHTPE");
 }
 
+// ТЕСТИРОВАНИЕ
 void MSG_joyTest() {
 	lcd.clear();
 	// ТЕСТИРОВАНИЕ
@@ -69,6 +75,8 @@ void MSG_joyTest() {
 	lcd.setCursor(0, 0);
 	lcd.print("TECT\1POBAH\1E");
 }
+
+// ЧИТАЕМ НАСТРОЙКИ
 void MSG_readData() {
 	// Читаем настройки
 	lcd.clear();
@@ -78,8 +86,55 @@ void MSG_readData() {
 	lcd.setCursor(0, 0);
 	lcd.print("\1\2TAEM HACTPO\3K\2");
 	lcd.setCursor(0, 1);
+	// визуализация загрузки параметров (мулька)
 	for (size_t i = 0; i < 16; i++)
 	{
 		lcd.print("*"); delay(i*30);
 	}
+}
+
+// ОШИБКА ДЖОЙСТИКА
+void	MSG_errorJoy() {
+	// Ошибка джойстика
+	lcd.clear();
+	lcd.createChar(1, bukva_Sh);
+	lcd.createChar(2, bukva_D);
+	lcd.createChar(3, bukva_ZH);
+	lcd.createChar(4, bukva_IY);
+	lcd.createChar(5, bukva_I);
+	lcd.createChar(6, bukva_B);
+	lcd.setCursor(0, 0);
+	lcd.print("O\1\5\6KA \2\3O\4\CT\5\KA");
+}
+
+// ПОЧИНИТЕ/ЗАМЕНИТЕ ДЖОЙСТИК		(с морганием)
+void MSG_changeJoy() {
+	lcd.clear();
+	lcd.createChar(1, bukva_P);
+	lcd.createChar(2, bukva_CH);
+	lcd.createChar(3, bukva_I);
+	lcd.createChar(4, bukva_Z);
+	lcd.createChar(5, bukva_D);
+	lcd.createChar(6, bukva_ZH);
+	lcd.createChar(7, bukva_IY);
+	lcd.setCursor(0, 0);
+	lcd.print("\1O\2\3H\3TE");
+	lcd.setCursor(0, 1);
+	lcd.print("\5\6O\7CT\3K");
+	digitalWrite(lcdLight, LOW); delay(500);
+	digitalWrite(lcdLight, HIGH); delay(500);
+	digitalWrite(lcdLight, LOW); delay(500);
+	digitalWrite(lcdLight, HIGH); delay(500);
+	lcd.setCursor(0, 0);
+	lcd.print("\4AMEH\3TE");
+	digitalWrite(lcdLight, LOW); delay(500);
+	digitalWrite(lcdLight, HIGH); delay(500);
+	digitalWrite(lcdLight, LOW); delay(500);
+	digitalWrite(lcdLight, HIGH); delay(500);
+	lcd.setCursor(0, 0);
+	lcd.print("\1O\2\3H\3TE");
+	digitalWrite(lcdLight, LOW); delay(500);
+	digitalWrite(lcdLight, HIGH); delay(500);
+	digitalWrite(lcdLight, LOW); delay(500);
+	digitalWrite(lcdLight, HIGH); delay(500);
 }
