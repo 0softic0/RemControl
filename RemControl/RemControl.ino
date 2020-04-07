@@ -39,6 +39,7 @@
 
 
  */
+#define sizeRusArray 21
 
 #include "DubleAxis.h"
 #include "printf.h"
@@ -48,13 +49,14 @@
 # include "LiquidCrystal_I2C.h"    // Подключаем библиотеку LiquidCrystal_I2C
 
 
+
 /// Определяем подключение резиторов джойстика
 int fX = A0;// A2;
 int bX = A3;// A5;
 int fY = A1;// A3;
 int bY = A2;// A4;
 
-int pinVolt = A7;	//	подключенный через делитель на основное напряжение (6,04 В - 630 единиц)
+uint8_t pinVolt = A7;	//	подключенный через делитель на основное напряжение (6,04 В - 630 единиц)
 
 /// подключение кнопок
 int signalPin = 9;// 8;		//	пин инициализации джойстика
@@ -82,7 +84,20 @@ int maxWorkSpeed[] = { 0,128,256,384,640,1024 };
 int peredacha = 3;
 int maxSpeed = 384;
 // the setup function runs once when you press reset or power the board
+/* Структура для хранения информации о используемых русских символах и их текущем временном номере*/
+struct LCDRusChar
+{
+	byte codRusCh;			//	код русской буквы после символа 208
+	byte* bykvaPoint;		//	ссылка на попиксельное отображение буквы
+	uint8_t temNumber;	//	временно присвоенный номер
+
+};
+LCDRusChar aaa[sizeRusArray];	// массив рабочей структуры
+
 void setup() {
+
+	// инициализируем (заполняем) массив ссылок на буквы 
+	outInicArray();
 	Serial.begin(9600);
 	printf_begin();
 	
@@ -95,10 +110,9 @@ void setup() {
 
 	lcd.init();	//	Инициализация lcd дисплея
 	digitalWrite(lcdLight, HIGH);
-//	digitalWrite(lcdLight, HIGH);
-	MSG_privet(); delay(2000);
-	MSG_joyCenter(); delay(1500);
-	MSG_joyTest();
+	//	MSG_privet(); delay(2000);
+//	MSG_joyCenter(); delay(1500);
+//	MSG_joyTest();
 	// проверяем центр (8 раз считываем данные)
 	F_B_2 searthCenter; F_B_2* _searthCenter = &searthCenter;
 	searthCenter = myJoy.rawRead();
@@ -114,7 +128,7 @@ void setup() {
 	}
 
 	EEPROM.get(0, workSaveData);	// считали из памяти
-	MSG_readData(); delay(2000);
+//	MSG_readData(); delay(2000);
 	
 	//	проверка совпадения текущего центрального расположения и ранее записанного
 
@@ -136,9 +150,9 @@ void setup() {
 		// у нас проблеммы с джойстиком!!! надо определиться, можно ли двигаться?
 		// нужно определить критерии и, возможно, нужно еще и проверять как оно было до этого
 		// т.к. если проведена инициализация джойстика - переменная будет равна "0"
-		MSG_errorJoy();
-		delay(2000);
-		MSG_changeJoy();
+//		MSG_errorJoy();
+//		delay(2000);
+//		MSG_changeJoy();
 	} else {
  		// система в нормальном состоянии
 	}
