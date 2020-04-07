@@ -109,7 +109,7 @@ void setup() {
 	delay(500);
 	// инициализация джойстика если включена кнопка ИНИЦИАЛИЗАЦИИ
 	if (digitalRead(signalPin) == LOW) {	//	если нужно инициализировать
-		MSG_inicialization(); delay(1000);	//	начинаем инициализацию джойстика
+//		MSG_inicialization(); delay(1000);	//	начинаем инициализацию джойстика
 		myJoy.newInic(searthCenter, errAxis, signalPin);	// инициализировали и записали в память
 	}
 
