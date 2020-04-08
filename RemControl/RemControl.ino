@@ -70,7 +70,7 @@ ERROMdata workSaveData;	// переменная для хранения пара
 // параметры дисплея
 word addresLCD1602 = 0x38;
 LiquidCrystal_I2C lcd(addresLCD1602, 16, 2); // Задаем адрес и размерность дисплея.
-int lcdLight = 3;
+uint8_t lcdLight = 3;
 
 /* параметры управления скоростью: 1-5
 	 5 - 1024
@@ -98,6 +98,7 @@ void setup() {
 
 	// инициализируем (заполняем) массив ссылок на буквы 
 	outInicArray();
+
 	Serial.begin(9600);
 	printf_begin();
 	
@@ -110,9 +111,8 @@ void setup() {
 
 	lcd.init();	//	Инициализация lcd дисплея
 	digitalWrite(lcdLight, HIGH);
-	//	MSG_privet(); delay(2000);
-//	MSG_joyCenter(); delay(1500);
-//	MSG_joyTest();
+	outLCD("Привет!", 0, 0); delay(2000);
+	outLCD("Проверка центра", 0, 1);
 	// проверяем центр (8 раз считываем данные)
 	F_B_2 searthCenter; F_B_2* _searthCenter = &searthCenter;
 	searthCenter = myJoy.rawRead();
@@ -120,15 +120,31 @@ void setup() {
 	F_B_2 maxCenter = searthCenter;	F_B_2* _maxCenter = &maxCenter;
 	F_B_2 errAxis; F_B_2* _errAxis = &errAxis;
 	myJoy.readWorkCenter(_searthCenter, _minCenter, _maxCenter, _errAxis);	//	получили данные текущего состояния джойстика
-	delay(500);
+	delay(1500);
 	// инициализация джойстика если включена кнопка ИНИЦИАЛИЗАЦИИ
 	if (digitalRead(signalPin) == LOW) {	//	если нужно инициализировать
+		clearNumRusChar();
+		lcd.clear();
+		outLCD("инициализация", 0, 0);
+		outLCD("джойстика...", 0, 1);
 //		MSG_inicialization(); delay(1000);	//	начинаем инициализацию джойстика
 		myJoy.newInic(searthCenter, errAxis, signalPin);	// инициализировали и записали в память
+		clearNumRusChar();
+		lcd.clear();
+		outLCD("инициализация", 0, 0);
+		outLCD("закончена...", 0, 1);
+		delay(2000);
 	}
-
+	delay(1000);
 	EEPROM.get(0, workSaveData);	// считали из памяти
-//	MSG_readData(); delay(2000);
+	clearNumRusChar();
+	lcd.clear();
+	outLCD("Настраиваемся", 0, 0);
+	lcd.setCursor(0, 1);
+	for (int i = 0; i < 16; i++)	//	имитация загрузки параметров
+	{ lcd.write('*'); delay(50 * i); }
+
+	//	MSG_readData(); delay(2000);
 	
 	//	проверка совпадения текущего центрального расположения и ранее записанного
 
@@ -147,6 +163,17 @@ void setup() {
 	}
 
 	if (GoodJoy > 0) {
+		int i = 0;
+		lcd.clear();
+		clearNumRusChar();
+		outLCD("Неисправен", 0, 0);
+		outLCD("джойстик", 0, 1);
+		while (i < 100) {
+			delay(500);
+			digitalWrite(lcdLight, LOW);
+			delay(500);
+			digitalWrite(lcdLight, HIGH);
+		}
 		// у нас проблеммы с джойстиком!!! надо определиться, можно ли двигаться?
 		// нужно определить критерии и, возможно, нужно еще и проверять как оно было до этого
 		// т.к. если проведена инициализация джойстика - переменная будет равна "0"
@@ -155,6 +182,10 @@ void setup() {
 //		MSG_changeJoy();
 	} else {
  		// система в нормальном состоянии
+		lcd.clear();
+		clearNumRusChar();
+		outLCD("Система настрена", 0, 0);
+//		outLCD("джойстик", 0, 1);
 	}
 
 	// переходим к установке параметров
@@ -165,18 +196,7 @@ void setup() {
 	printf("начали \n");
 
 
-/*	lcd.backlight();                // Включение подсветки дисплея
-	MSG_inicialization();
-	delay(2000);
-	MSG_centerOK();
-	delay(2000);
-	lcd.noBacklight();                // Включение подсветки дисплея
-	digitalWrite(lcdLight, LOW);
-	MSG_privet();
-	delay(2000);
-	MSG_inicialization();
-	delay(2000);
-	MSG_centerOK();	*/
+
 	lcd.clear();
 	lcd.setCursor(0, 1);
 	lcd.print("Max speed: ");
@@ -189,6 +209,9 @@ void setup() {
 
 // the loop function runs over and over again until power down or reset
 void loop() {
+	
+	
+	
 	// проверяем нажатие какой либо клавиши (нужно избавиться от дребезга)
 //	Serial.println(digitalRead(velPinMinus));
 	if (digitalRead(velPinMinus)==LOW){
@@ -254,5 +277,21 @@ void loop() {
 	printf("Левая = %d \t Правая=%d \n", bortL, bortR);
 
 	//	workData = myLocal;
-
+	
+	
+	//	пишем данные о состоянии батареи
+	lcd.setCursor(0, 0);
+	lcd.print("TX->");
+	int analogVolt=analogRead(pinVolt);
+	if (analogVolt > 900) { lcd.print("OK"); }
+	if (analogVolt < 600) { lcd.print("LOW"); }
+	if ((analogVolt >= 600) && (analogVolt <= 900)) {
+		int volt = analogVolt / 100;
+		int decVolt = analogVolt - (volt * 100);
+		decVolt = decVolt / 10;
+		char symb = volt + '0';
+		char dSymb = decVolt + '0';
+		lcd.write(symb); lcd.write('.'); lcd.write(dSymb);
+//		lcd.print("   ");
+	}
 }
