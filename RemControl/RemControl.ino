@@ -83,7 +83,7 @@ int maxPeredacha = 5;
 int maxWorkSpeed[] = { 0,128,256,384,640,1024 };
 int peredacha = 3;
 int maxSpeed = 384;
-// the setup function runs once when you press reset or power the board
+
 /* Структура для хранения информации о используемых русских символах и их текущем временном номере*/
 struct LCDRusChar
 {
@@ -144,8 +144,6 @@ void setup() {
 	for (int i = 0; i < 16; i++)	//	имитация загрузки параметров
 	{ lcd.write('*'); delay(50 * i); }
 
-	//	MSG_readData(); delay(2000);
-	
 	//	проверка совпадения текущего центрального расположения и ранее записанного
 
 	int GoodJoy = 0;
@@ -163,6 +161,9 @@ void setup() {
 	}
 
 	if (GoodJoy > 0) {
+		// у нас проблеммы с джойстиком!!! надо определиться, можно ли двигаться?
+		// нужно определить критерии и, возможно, нужно еще и проверять как оно было до этого
+		// т.к. если проведена инициализация джойстика - переменная будет равна "0"
 		int i = 0;
 		lcd.clear();
 		clearNumRusChar();
@@ -174,12 +175,6 @@ void setup() {
 			delay(500);
 			digitalWrite(lcdLight, HIGH);
 		}
-		// у нас проблеммы с джойстиком!!! надо определиться, можно ли двигаться?
-		// нужно определить критерии и, возможно, нужно еще и проверять как оно было до этого
-		// т.к. если проведена инициализация джойстика - переменная будет равна "0"
-//		MSG_errorJoy();
-//		delay(2000);
-//		MSG_changeJoy();
 	} else {
  		// система в нормальном состоянии
 		lcd.clear();
@@ -210,27 +205,17 @@ void setup() {
 // the loop function runs over and over again until power down or reset
 void loop() {
 	
-	
-	
 	// проверяем нажатие какой либо клавиши (нужно избавиться от дребезга)
 //	Serial.println(digitalRead(velPinMinus));
 	if (digitalRead(velPinMinus)==LOW){
-		peredacha++;
-		if (peredacha > maxPeredacha) { peredacha = maxPeredacha; }
-		lcd.clear();
-		lcd.setCursor(0, 1);
-		lcd.print("Max speed: ");
-		lcd.print(peredacha);
-
+		peredacha++; if (peredacha > maxPeredacha) { peredacha = maxPeredacha; }
+		lcd.clear(); lcd.setCursor(0, 1); lcd.print("Max speed: "); lcd.print(peredacha);
 		delay(200);
 	}
 	if (digitalRead(velPinPlus) == LOW) {
 		peredacha--;
 		if (peredacha < 1) { peredacha = 1; }
-		lcd.clear();
-		lcd.setCursor(0, 1);
-		lcd.print("Max speed: ");
-		lcd.print(peredacha);
+		lcd.clear(); lcd.setCursor(0, 1); lcd.print("Max speed: "); lcd.print(peredacha);
 		delay(200);
 	}
 	myJoy.readData();
