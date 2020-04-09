@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RemControl", "RemControl\Re
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ASCII_LCD1620", "ASCII_LCD1620\ASCII_LCD1620.vcxproj", "{D221D113-F958-43B6-8381-7A70243EC4B4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestVoltage", "TestVoltage\TestVoltage.vcxproj", "{74F150CA-80C8-4309-9F6E-40A58D6736C6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Priem", "Priem\Priem.vcxproj", "{E14C14F3-D581-48D1-9014-7DBB697E55FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{D221D113-F958-43B6-8381-7A70243EC4B4}.Debug|x86.Build.0 = Debug|Win32
 		{D221D113-F958-43B6-8381-7A70243EC4B4}.Release|x86.ActiveCfg = Release|Win32
 		{D221D113-F958-43B6-8381-7A70243EC4B4}.Release|x86.Build.0 = Release|Win32
-		{74F150CA-80C8-4309-9F6E-40A58D6736C6}.Debug|x86.ActiveCfg = Debug|Win32
-		{74F150CA-80C8-4309-9F6E-40A58D6736C6}.Debug|x86.Build.0 = Debug|Win32
-		{74F150CA-80C8-4309-9F6E-40A58D6736C6}.Release|x86.ActiveCfg = Release|Win32
-		{74F150CA-80C8-4309-9F6E-40A58D6736C6}.Release|x86.Build.0 = Release|Win32
+		{E14C14F3-D581-48D1-9014-7DBB697E55FD}.Debug|x86.ActiveCfg = Debug|Win32
+		{E14C14F3-D581-48D1-9014-7DBB697E55FD}.Debug|x86.Build.0 = Debug|Win32
+		{E14C14F3-D581-48D1-9014-7DBB697E55FD}.Release|x86.ActiveCfg = Release|Win32
+		{E14C14F3-D581-48D1-9014-7DBB697E55FD}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
