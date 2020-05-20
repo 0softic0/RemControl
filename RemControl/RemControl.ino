@@ -39,23 +39,32 @@
 
 
  */
+#include "DubleAxis.h"
+#include "printf.h"
+#include <EEPROM.h>
+#include <Wire.h>
+#include "LiquidCrystal_I2C.h"    // Подключаем библиотеку LiquidCrystal_I2C
+#include <SPI.h>      //  Подключаем библиотеку для работы с шиной SPI
+#include <nRF24L01.h> //  Подключаем файл настроек из библиотеки RF24
+#include <RF24.h>     //  Подключаем библиотеку для работы с nRF24L01+
+
 constexpr auto sizeRusArray = 21;	// кол-во русских символов
 
 /// описание пинов подключения
-constexpr auto = 0;
-constexpr auto = 1;
-constexpr auto = 2;
+//constexpr auto = 0;
+//constexpr auto = 1;
+//constexpr auto = 2;
 constexpr auto lcdLight = 3;	//	управление подсветкой дисплея
-constexpr auto = 4;
-constexpr auto = 5;
-constexpr auto = 6;
+//constexpr auto = 4;
+constexpr auto pinNRFce = 5;
+constexpr auto pinNRFcsn = 6;
 constexpr auto velPinMinus = 7;// 6;	//	снижение максимальной скорости
 constexpr auto velPinPlus = 8;// 7;		//	увеличение максимальной скорости
 constexpr auto signalPin = 9;// 8;		//	пин инициализации джойстика
-constexpr auto = 10;
-constexpr auto = 11;
-constexpr auto = 12;
-constexpr auto = 13;
+//constexpr auto = 10;
+//constexpr auto = 11;	NRF
+//constexpr auto = 12;	NRF
+//constexpr auto = 13;	NRF
 
 //	джойстик
 constexpr auto fX = 14;	//	A0
@@ -64,13 +73,6 @@ constexpr auto fY = 15;	//	A1
 constexpr auto bY = 16;	//	A2
 	//	18-A4		19-A5		20-A6
 constexpr auto pinVolt = 21;	//	A7	подключенный через делитель на основное напряжение (6,04 В - 630 единиц)
-
-#include "DubleAxis.h"
-#include "printf.h"
-#include <EEPROM.h>
-
-# include <Wire.h>
-# include "LiquidCrystal_I2C.h"    // Подключаем библиотеку LiquidCrystal_I2C
 
 
 
@@ -116,7 +118,17 @@ struct LCDRusChar
 };
 LCDRusChar aaa[sizeRusArray];	// массив рабочей структуры
 
+RF24 radio(pinNRFce, pinNRFcsn);	//	Создаём объект radio для работы с библиотекой RF24, 
+																	//	указывая номера выводов nRF24L01+ (CE, CSN)
+int   sendData[2];		//	Создаём массив для приёма данных
+											//	0 - левая гусеница,
+											//	1 - праввая гусеница;
+constexpr auto leftCat = 0;
+constexpr auto rightCat = 1;
+
+
 void setup() {
+	setRadioChanal();
 
 	// инициализируем (заполняем) массив ссылок на буквы 
 	outInicArray();
@@ -282,6 +294,17 @@ void loop() {
 	if (bortR > maxWorkSpeed[peredacha]) { bortR = maxWorkSpeed[peredacha]; }
 	if (bortR < -maxWorkSpeed[peredacha]) { bortR = -maxWorkSpeed[peredacha]; }
 	printf("Левая = %d \t Правая=%d \n", bortL, bortR);
+	sendData[leftCat]=bortL; sendData[rightCat]=bortR;
+
+	// передаем данные
+	if (radio.write(&sendData, sizeof(sendData))) {
+		//      Serial.println(10);
+		printf("GOOD \n\r");
+	}
+	else {
+		//      Serial.println(100);
+		printf("BED \n\r");
+	}
 
 	//	workData = myLocal;
 	
@@ -301,4 +324,18 @@ void loop() {
 		lcd.write(symb); lcd.write('.'); lcd.write(dSymb);
 //		lcd.print("   ");
 	}
+
+}
+
+/*инициализация передатчика*/
+void setRadioChanal() {
+	// инициализация радио-модуля
+	radio.begin();                                // Инициируем работу nRF24L01+
+	radio.setChannel(120);                        // Указываем канал приёма данных (от 0 до 127), 5 - значит приём данных осуществляется на частоте 2,405 ГГц (на одном канале может быть только 1 приёмник и до 6 передатчиков)
+	radio.setDataRate(RF24_250KBPS);           // Указываем скорость передачи данных (RF24_250KBPS, RF24_1MBPS, RF24_2MBPS), RF24_1MBPS - 1Мбит/сек
+	radio.setPALevel(RF24_PA_MAX);         // Указываем мощность передатчика (RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm)
+	radio.openReadingPipe(1, 0x1234567890LL);    // Открываем 1 трубу с идентификатором 0x1234567890 для приема данных (на ожном канале может быть открыто до 6 разных труб, которые должны отличаться только последним байтом идентификатора)
+//    radio.openReadingPipe (1, 0x1234567890LL);
+	radio.startListening();                     // Включаем приемник, начинаем прослушивать открытую трубу
+	delay(100);
 }
