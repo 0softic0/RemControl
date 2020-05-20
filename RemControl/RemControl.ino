@@ -39,7 +39,31 @@
 
 
  */
-#define sizeRusArray 21
+constexpr auto sizeRusArray = 21;	// кол-во русских символов
+
+/// описание пинов подключения
+constexpr auto = 0;
+constexpr auto = 1;
+constexpr auto = 2;
+constexpr auto lcdLight = 3;	//	управление подсветкой дисплея
+constexpr auto = 4;
+constexpr auto = 5;
+constexpr auto = 6;
+constexpr auto velPinMinus = 7;// 6;	//	снижение максимальной скорости
+constexpr auto velPinPlus = 8;// 7;		//	увеличение максимальной скорости
+constexpr auto signalPin = 9;// 8;		//	пин инициализации джойстика
+constexpr auto = 10;
+constexpr auto = 11;
+constexpr auto = 12;
+constexpr auto = 13;
+
+//	джойстик
+constexpr auto fX = 14;	//	A0
+constexpr auto bX = 17;	//	A3
+constexpr auto fY = 15;	//	A1
+constexpr auto bY = 16;	//	A2
+	//	18-A4		19-A5		20-A6
+constexpr auto pinVolt = 21;	//	A7	подключенный через делитель на основное напряжение (6,04 В - 630 единиц)
 
 #include "DubleAxis.h"
 #include "printf.h"
@@ -51,17 +75,15 @@
 
 
 /// Определяем подключение резиторов джойстика
-int fX = A0;// A2;
-int bX = A3;// A5;
-int fY = A1;// A3;
-int bY = A2;// A4;
-
-uint8_t pinVolt = A7;	//	подключенный через делитель на основное напряжение (6,04 В - 630 единиц)
-
+//int fX = A0;// A2;
+//int bX = A3;// A5;
+//int fY = A1;// A3;
+//int bY = A2;// A4;
+//uint8_t pinVolt = A7;	//	подключенный через делитель на основное напряжение (6,04 В - 630 единиц)
 /// подключение кнопок
-int signalPin = 9;// 8;		//	пин инициализации джойстика
-uint8_t velPinPlus = 8;// 7;		//	увеличение максимальной скорости
-uint8_t velPinMinus = 7;// 6;	//	снижение максимальной скорости
+//int signalPin = 9;// 8;		//	пин инициализации джойстика
+//uint8_t velPinPlus = 8;// 7;		//	увеличение максимальной скорости
+//uint8_t velPinMinus = 7;// 6;	//	снижение максимальной скорости
 
 Joy2_2axis myJoy;
 X_Y_data workData;
@@ -70,7 +92,7 @@ ERROMdata workSaveData;	// переменная для хранения пара
 // параметры дисплея
 word addresLCD1602 = 0x38;
 LiquidCrystal_I2C lcd(addresLCD1602, 16, 2); // Задаем адрес и размерность дисплея.
-uint8_t lcdLight = 3;
+//uint8_t lcdLight = 3;
 
 /* параметры управления скоростью: 1-5
 	 5 - 1024
