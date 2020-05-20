@@ -32,29 +32,56 @@
 #include <RF24.h>     //  Подключаем библиотеку для работы с nRF24L01+
 #include "printf.h"
 #include "MDC_V001.h" //  подключаем библиотеку управления гусеницей
-RF24   radio(5, 6);   //  Создаём объект radio для работы с библиотекой RF24, 
-                      //    указывая номера выводов nRF24L01+ (CE, CSN)
-int   sendData[3];    //  Создаём массив для приёма данных 0 - левая гусеница,
-                      //  1 - праввая гусеница; 2 - состояние двигателя (1-запущен; 0 - остановлен)
+
+/// описание пинов подключения
+//constexpr auto = 0;
+//constexpr auto = 1;
+//constexpr auto = 2;
+//constexpr auto lcdLight = 3;	//	управление подсветкой дисплея
+//constexpr auto = 4;
+constexpr auto pinNRFce = 5;
+constexpr auto pinNRFcsn = 6;
+//constexpr auto velPinMinus = 7;// 6;	//	снижение максимальной скорости
+//constexpr auto velPinPlus = 8;// 7;		//	увеличение максимальной скорости
+//constexpr auto signalPin = 9;// 8;		//	пин инициализации джойстика
+//constexpr auto = 10;
+//constexpr auto = 11;	NRF
+//constexpr auto = 12;	NRF
+//constexpr auto = 13;	NRF
+constexpr auto startDrivers = 14;	//	A0
+constexpr auto startCooler = 15;	//	A1
+constexpr auto stopEngine = 16;	//	A2
+//constexpr auto startCooler = 17;	//	A3
+	//	18-A4		19-A5		20-A6
+//constexpr auto pinVolt = 21;	//	A7	подключенный через делитель на основное напряжение (6,04 В - 630 единиц)
+
+
+RF24   radio(pinNRFce , pinNRFcsn);	//	Создаём объект radio для работы с библиотекой RF24, 
+																		//	указывая номера выводов nRF24L01+ (CE, CSN)
+int   sendData[2];		//	Создаём массив для приёма данных
+											//	0 - левая гусеница,
+											//	1 - праввая гусеница;
+constexpr auto leftCat = 0;
+constexpr auto rightCat = 1;
 
 
 ManageDriveCaterpillar CaterpL(8, 10);
 ManageDriveCaterpillar CaterpR(7, 9);
 
-int startDrivers = 14;  //  влючение драйверов
-int startCooler = 15;   //  включение вентилятора
-int stopEngine = 16;    //  глушение двигателя генератора
+//int startDrivers = 14;  //  влючение драйверов
+//int startCooler = 15;   //  включение вентилятора
+//int stopEngine = 16;    //  глушение двигателя генератора
 
 unsigned long lastDataTime;  //  время последнего удачного приема
 unsigned long realDataTime;  //  текущее время если нет приема
 unsigned long lastGENtime;   //  время старта генератора
 unsigned long realGENtime;
 unsigned  long  lastIncrData; //  время последнего инкремента для генератора
-int genSost = 0;              //  состояние генератора
-int PIN_REL = 3;  // управляющий канал на генератор
-int PIN_ANALOG_READ = A7; //  обратная связь (коэффициент подбирается под делитель)
-int Voltage = 0;  //  управляющее значение
-int VoltageMAX = 850; //  к какому значению стремимся
+//int genSost = 0;              //  состояние генератора
+//int PIN_REL = 3;  // управляющий канал на генератор
+//int PIN_ANALOG_READ = A7; //  обратная связь (коэффициент подбирается под делитель)
+//int Voltage = 0;  //  управляющее значение
+//int VoltageMAX = 850; //  к какому значению стремимся
 
 
 
@@ -71,8 +98,8 @@ void setup() {
   pinMode(startDrivers, OUTPUT); digitalWrite(startDrivers, LOW);
   pinMode(startCooler, OUTPUT); digitalWrite(startCooler, LOW);
   pinMode(stopEngine, OUTPUT);  digitalWrite(stopEngine, HIGH);
-  pinMode(PIN_REL, OUTPUT);
-  digitalWrite(PIN_REL, LOW);
+  //pinMode(PIN_REL, OUTPUT);
+  //digitalWrite(PIN_REL, LOW);
 
   // инициализация радио-модуля
   radio.begin();                                // Инициируем работу nRF24L01+
@@ -103,18 +130,18 @@ void loop()
       digitalWrite(startDrivers, LOW);					//	отключаем драйвера
       digitalWrite(startCooler, LOW);						//	останавливаем вертиляторы
       digitalWrite(stopEngine, HIGH);						//	глушим двигатель
-      digitalWrite(PIN_REL, LOW);								//	даем команду на прекращение генерации
-      genSost = 0;
-      sendData[2] = 0;
-      sendData[1] = 0;
-      sendData[0] = 0;
+//      digitalWrite(PIN_REL, LOW);								//	даем команду на прекращение генерации
+//      genSost = 0;
+//      sendData[2] = 0;
+      sendData[leftCat] = 0;
+      sendData[rightCat] = 0;
       printf("JOPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA \n");
     }
     //    printf("NET \n");
   }
-  int C_L = sendData[0];
-  int C_R = sendData[1];
-  //  printf ("C_L=%d \t C_R=%d", C_L, C_R);
+  int C_L = sendData[leftCat];
+  int C_R = sendData[rightCat];
+    printf ("C_L=%d \t C_R=%d", C_L, C_R);
   C_L = constrain(C_L, -1024, 1024);      // нормализуем до максимального значения при прямом ходе
   C_R = constrain(C_R, -1024, 1024);
 
@@ -136,57 +163,5 @@ void loop()
   CaterpR.DriveCaterpillar();
   CaterpL.Run_Run();
   CaterpR.Run_Run();
-  /*------------------------------------------------------------------------------
-  Блок управления генератором в зависимости от текущего состояния
-  Перечень состояний (genSost):
-    0 - двигатель заглушен - тянем подсос
-    1 - подсос вытянут - перестаем тянуть, включаем стартер
-    2 - стартер крутит - перестаем крутить -
-    3 - ждем прогрева
-    4 - толкаем подсос
-    5 - перестаем толкать - двигатель заведен
-  ------------------------------------------------------------------------------*/
-  //  printf("GEN=%d \n", sendData[2]);
-  if (sendData[2] == 1) {  // генератор должен работать
-    realGENtime = millis();
-    //    printf("genSost=%d \t ========DDDDD=========%d",genSost, realGENtime);
-    switch (genSost) {
-    case 0: //  генератор в останове
-      digitalWrite(startCooler, HIGH);  // включили вентилятор
-      digitalWrite(stopEngine, LOW);
-      printf("VVVVVVVVVVVVVVVVVVVVVVVVVVVV");
-      // включить реле вытягивания подсоса
-
-        //        printf("===NE GLUSHIM === TIANEV PODSOS \n");
-      Voltage = 0;
-      lastGENtime = millis(); genSost = 5;
-      lastIncrData = millis();
-      break;
-
-    case 5: //  здесь начианем работать с генерацией
-      if ((lastGENtime + 5000) < realGENtime) {  // подождали 5 секунд и если прошли
-        digitalWrite(PIN_REL, HIGH);
-      }
-      break;
-    default:
-
-      break;
-    }
-  }
-  else {  //  если генератор не должен работать - глушим
-    if ((lastIncrData + 150) < millis()) {
-      Voltage = Voltage - 4;
-      if (Voltage < 0) { Voltage = 0; }
-      lastIncrData = millis();
-    }
-    if (Voltage == 0) {
-      digitalWrite(PIN_REL, LOW);
-      digitalWrite(startCooler, LOW);
-      digitalWrite(stopEngine, HIGH);
-
-      genSost = 0;
-    }
-
-  }
   //  printf("GEN_SOST=%d \t sendWorkRelay=%d \n", genSost, sendWorkRelay);
 }
