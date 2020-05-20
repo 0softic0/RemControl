@@ -1,3 +1,4 @@
+#define sizeRusArray 21
 
 byte bykva_B[8] = { B11110,B10000,B10000,B11110,B10001,B10001,B11110,B00000, }; // Буква "Б"
 byte bykva_G[8] = { B11111,B10001,B10000,B10000,B10000,B10000,B10000,B00000, }; // Буква "Г"
@@ -21,30 +22,39 @@ byte bykva_Ie[8] = { B01110,B10001,B00001,B00111,B00001,B10001,B01110,B00000, };
 byte bykva_Yu[8] = { B10010,B10101,B10101,B11101,B10101,B10101,B10010,B00000, }; // Буква "Ю"
 byte bykva_Ya[8] = { B01111,B10001,B10001,B01111,B00101,B01001,B10001,B00000, }; // Буква "Я" 
 
-void outInicArray() {
-	int i = 0;
-	aaa[i].codRusCh = 145; aaa[i].bykvaPoint = bykva_B; aaa[i].temNumber = 0; i++;
-	aaa[i].codRusCh = 147; aaa[i].bykvaPoint = bykva_G; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 148; aaa[i].bykvaPoint = bykva_D; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 150; aaa[i].bykvaPoint = bykva_ZH; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 151; aaa[i].bykvaPoint = bykva_Z; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 152; aaa[i].bykvaPoint = bykva_I; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 153; aaa[i].bykvaPoint = bykva_IY; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 155; aaa[i].bykvaPoint = bykva_L; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 159; aaa[i].bykvaPoint = bykva_P; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 163; aaa[i].bykvaPoint = bykva_Y; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 164; aaa[i].bykvaPoint = bykva_F; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 166; aaa[i].bykvaPoint = bykva_TS; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 167; aaa[i].bykvaPoint = bykva_CH; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 168; aaa[i].bykvaPoint = bykva_Sh; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 169; aaa[i].bykvaPoint = bykva_Shch; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 170; aaa[i].bykvaPoint = bykva_Tz; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 171; aaa[i].bykvaPoint = bykva_IYI; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 172; aaa[i].bykvaPoint = bykva_Mz; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 173; aaa[i].bykvaPoint = bykva_Ie; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 174; aaa[i].bykvaPoint = bykva_Yu; aaa[i].temNumber = 0;	i++;
-	aaa[i].codRusCh = 175; aaa[i].bykvaPoint = bykva_Ya; aaa[i].temNumber = 0;	i++;
-}
+/* Структура для хранения информации о используемых русских символах и их текущем временном номере*/
+struct LCDRusChar
+{
+	byte codRusCh;			//	код русской буквы после символа 208
+	byte* bykvaPoint;		//	ссылка на попиксельное отображение буквы
+	uint8_t temNumber;	//	временно присвоенный номер
+
+};
+LCDRusChar aaa[sizeRusArray];	// массив рабочей структуры
+
+int i = 0;
+aaa[i].codRusCh = 145; aaa[i].bykvaPoint = bykva_B; aaa[i].temNumber = 0; i++;
+aaa[i].codRusCh = 147; aaa[i].bykvaPoint = bykva_G; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 148; aaa[i].bykvaPoint = bykva_D; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 150; aaa[i].bykvaPoint = bykva_ZH; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 151; aaa[i].bykvaPoint = bykva_Z; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 152; aaa[i].bykvaPoint = bykva_I; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 153; aaa[i].bykvaPoint = bykva_IY; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 155; aaa[i].bykvaPoint = bykva_L; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 159; aaa[i].bykvaPoint = bykva_P; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 163; aaa[i].bykvaPoint = bykva_Y; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 164; aaa[i].bykvaPoint = bykva_F; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 166; aaa[i].bykvaPoint = bykva_TS; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 167; aaa[i].bykvaPoint = bykva_CH; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 168; aaa[i].bykvaPoint = bykva_Sh; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 169; aaa[i].bykvaPoint = bykva_Shch; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 170; aaa[i].bykvaPoint = bykva_Tz; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 171; aaa[i].bykvaPoint = bykva_IYI; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 172; aaa[i].bykvaPoint = bykva_Mz; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 173; aaa[i].bykvaPoint = bykva_Ie; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 174; aaa[i].bykvaPoint = bykva_Yu; aaa[i].temNumber = 0;	i++;
+aaa[i].codRusCh = 175; aaa[i].bykvaPoint = bykva_Ya; aaa[i].temNumber = 0;	i++;
+
 
 void outLCD(String aaa, int _col, int _row) {
 	String outData;
@@ -202,3 +212,4 @@ void clearNumRusChar() {
 	}
 }
 
+}
