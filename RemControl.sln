@@ -13,6 +13,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestRadioChanal", "TestRadi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestVoltage", "TestVoltage\TestVoltage.vcxproj", "{74F150CA-80C8-4309-9F6E-40A58D6736C6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestPeredacha", "TestPeredacha\TestPeredacha.vcxproj", "{36130BF2-3989-4BFF-BEC5-6206650B34CD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestPriem", "TestPriem\TestPriem.vcxproj", "{ECBF6770-7313-4842-97F8-E3EA4419A971}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -39,6 +43,14 @@ Global
 		{74F150CA-80C8-4309-9F6E-40A58D6736C6}.Debug|x86.Build.0 = Debug|Win32
 		{74F150CA-80C8-4309-9F6E-40A58D6736C6}.Release|x86.ActiveCfg = Release|Win32
 		{74F150CA-80C8-4309-9F6E-40A58D6736C6}.Release|x86.Build.0 = Release|Win32
+		{36130BF2-3989-4BFF-BEC5-6206650B34CD}.Debug|x86.ActiveCfg = Debug|Win32
+		{36130BF2-3989-4BFF-BEC5-6206650B34CD}.Debug|x86.Build.0 = Debug|Win32
+		{36130BF2-3989-4BFF-BEC5-6206650B34CD}.Release|x86.ActiveCfg = Release|Win32
+		{36130BF2-3989-4BFF-BEC5-6206650B34CD}.Release|x86.Build.0 = Release|Win32
+		{ECBF6770-7313-4842-97F8-E3EA4419A971}.Debug|x86.ActiveCfg = Debug|Win32
+		{ECBF6770-7313-4842-97F8-E3EA4419A971}.Debug|x86.Build.0 = Debug|Win32
+		{ECBF6770-7313-4842-97F8-E3EA4419A971}.Release|x86.ActiveCfg = Release|Win32
+		{ECBF6770-7313-4842-97F8-E3EA4419A971}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
