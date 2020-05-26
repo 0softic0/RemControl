@@ -17,6 +17,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestPeredacha", "TestPereda
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestPriem", "TestPriem\TestPriem.vcxproj", "{ECBF6770-7313-4842-97F8-E3EA4419A971}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestTemperature", "TestTemperature\TestTemperature.vcxproj", "{82E799FB-5915-4DF9-9135-CA927A2E62CE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Wire-1.0", "Libraries\Wire\1.0\Wire\Wire-1.0.vcxitems", "{D57CAB0E-0027-4B9F-BEBA-188988406998}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestTemperature001", "TestTemperature001\TestTemperature001.vcxproj", "{F9871DFB-ACAB-416B-9E93-3063FB32AE3D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -51,6 +57,14 @@ Global
 		{ECBF6770-7313-4842-97F8-E3EA4419A971}.Debug|x86.Build.0 = Debug|Win32
 		{ECBF6770-7313-4842-97F8-E3EA4419A971}.Release|x86.ActiveCfg = Release|Win32
 		{ECBF6770-7313-4842-97F8-E3EA4419A971}.Release|x86.Build.0 = Release|Win32
+		{82E799FB-5915-4DF9-9135-CA927A2E62CE}.Debug|x86.ActiveCfg = Debug|Win32
+		{82E799FB-5915-4DF9-9135-CA927A2E62CE}.Debug|x86.Build.0 = Debug|Win32
+		{82E799FB-5915-4DF9-9135-CA927A2E62CE}.Release|x86.ActiveCfg = Release|Win32
+		{82E799FB-5915-4DF9-9135-CA927A2E62CE}.Release|x86.Build.0 = Release|Win32
+		{F9871DFB-ACAB-416B-9E93-3063FB32AE3D}.Debug|x86.ActiveCfg = Debug|Win32
+		{F9871DFB-ACAB-416B-9E93-3063FB32AE3D}.Debug|x86.Build.0 = Debug|Win32
+		{F9871DFB-ACAB-416B-9E93-3063FB32AE3D}.Release|x86.ActiveCfg = Release|Win32
+		{F9871DFB-ACAB-416B-9E93-3063FB32AE3D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
