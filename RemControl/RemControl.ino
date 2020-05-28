@@ -296,7 +296,7 @@ void loop() {
 	if (bortR > maxWorkSpeed[peredacha]) { bortR = maxWorkSpeed[peredacha]; }
 	if (bortR < -maxWorkSpeed[peredacha]) { bortR = -maxWorkSpeed[peredacha]; }
 	printf("Левая = %d \t Правая=%d \n", bortL, bortR);
-	sendData[leftCat]=bortL; sendData[rightCat]=bortR;
+	sendData[leftCat]=-bortL; sendData[rightCat]=-bortR;
 
 	// передаем данные
 	if (radio.write(&sendData, sizeof(sendData))) {

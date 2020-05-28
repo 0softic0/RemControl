@@ -38,7 +38,7 @@
 //constexpr auto = 0;
 //constexpr auto = 1;
 constexpr auto pinTemperature = 2;	//	подключение детчика температуры DS18b20
-//constexpr auto lcdLight = 3;	//	управление подсветкой дисплея
+//constexpr auto = 3;
 //constexpr auto = 4;
 constexpr auto pinNRFce = 5;
 constexpr auto pinNRFcsn = 6;
@@ -49,10 +49,10 @@ constexpr auto velocityCatL = 10;	//	скорость Левой гусениц�
 //constexpr auto = 11;	NRF
 //constexpr auto = 12;	NRF
 //constexpr auto = 13;	NRF
-constexpr auto startDrivers = 14;	//	A0
-constexpr auto startCooler = 15;	//	A1
-constexpr auto stopEngine = 16;		//	A2
-//constexpr auto startCooler = 17;	//	A3
+constexpr auto startDrivers = 14;	//	реле включения драйверов
+constexpr auto startCooler = 15;	//	реле влючения вентилятора
+constexpr auto stopEngine = 16;		//	реле на глушку двигателя генератора
+//constexpr auto = 17;
 	//	18-A4		19-A5		20-A6
 constexpr auto pinVolt = 21;	//	A7	подключенный через делитель на основное напряжение (??? В - ??? единиц)
 
@@ -82,38 +82,21 @@ int	dataVoltage;			//	данные с датчика вольтажа
 ManageDriveCaterpillar CaterpL(naprCatL,velocityCatL);
 ManageDriveCaterpillar CaterpR(naprCatR,velocityCatR);
 
-//int startDrivers = 14;  //  влючение драйверов
-//int startCooler = 15;   //  включение вентилятора
-//int stopEngine = 16;    //  глушение двигателя генератора
-
 unsigned long lastDataTime;  //  время последнего удачного приема
 unsigned long realDataTime;  //  текущее время если нет приема
-unsigned long lastGENtime;   //  время старта генератора
-unsigned long realGENtime;
-unsigned  long  lastIncrData; //  время последнего инкремента для генератора
-//int genSost = 0;              //  состояние генератора
-//int PIN_REL = 3;  // управляющий канал на генератор
-//int PIN_ANALOG_READ = A7; //  обратная связь (коэффициент подбирается под делитель)
-//int Voltage = 0;  //  управляющее значение
-//int VoltageMAX = 850; //  к какому значению стремимся
-
 
 
 void setup() {
-	// Пишем код для инициализации устройств(а), 
-	// то что надо сделать один раз при включении
-// устанавливаем частоту ШИМ для Таймера1 на 62,5 КГц
+	//	Пишем код для инициализации устройств(а), 
+	//	то что надо сделать один раз при включении
+	//	устанавливаем частоту ШИМ для Таймера1 на 62,5 КГц
 	TCCR1A = TCCR1A & 0xe0 | 1;
 	TCCR1B = TCCR1B & 0xe0 | 0x09;
-	//    sendData[0]=0;
-	//    sendData[1]=0;
 	Serial.begin(9600);
 	printf_begin();
 	pinMode(startDrivers, OUTPUT); digitalWrite(startDrivers, LOW);
 	pinMode(startCooler, OUTPUT); digitalWrite(startCooler, LOW);
 	pinMode(stopEngine, OUTPUT);  digitalWrite(stopEngine, HIGH);
-	//pinMode(PIN_REL, OUTPUT);
-	//digitalWrite(PIN_REL, LOW);
 
 	// инициализация радио-модуля
 	inicRadio();
@@ -126,14 +109,13 @@ void setup() {
 void loop()
 {
 	dataVoltage=analogRead(pinVolt);
-	if (radio.available()) {                                // Если в буфере имеются принятые данные
-//    printf("Ect data SizeOF=%d \n",sizeof(sendData) );
-		radio.read(&sendData, sizeof(sendData));            // Читаем данные в массив data и указываем сколько байт читать
+	if (radio.available()) {																				//	Если в буфере имеются принятые данные
+		radio.read(&sendData, sizeof(sendData));											//	Читаем данные в массив data и указываем сколько байт читать
 		outData=millis();
-		radio.writeAckPayload(1, &dataVoltage, sizeof(dataVoltage));
-//    printf("Lev = %d \t Prav=%d \n", sendData[0],sendData[1]);
-		lastDataTime = millis();            //  запомнили время последнего удачного приема
-		digitalWrite(startDrivers, HIGH); //  включаем драйвера
+		printf("voltage=%d \n", dataVoltage);
+		radio.writeAckPayload(1, &dataVoltage, sizeof(dataVoltage));	//	Отправляем значение бортового напряжения
+		lastDataTime = millis();																			//	запомнили время последнего удачного приема
+		digitalWrite(startDrivers, HIGH);															//	включаем драйвера
 		printf("данные получены \n" );
 	}
 	else {
@@ -142,14 +124,10 @@ void loop()
 			digitalWrite(startDrivers, LOW);					//	отключаем драйвера
 			digitalWrite(startCooler, LOW);						//	останавливаем вертиляторы
 			digitalWrite(stopEngine, HIGH);						//	глушим двигатель
-//      digitalWrite(PIN_REL, LOW);								//	даем команду на прекращение генерации
-//      genSost = 0;
-//      sendData[2] = 0;
 			sendData[leftCat] = 0;
 			sendData[rightCat] = 0;
 			printf("JOPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA \n");
 		}
-		//    printf("NET \n");
 	}
 	int C_L = sendData[leftCat];
 	int C_R = sendData[rightCat];
@@ -164,8 +142,6 @@ void loop()
 	else { C_R = map(C_R, 0, -1024, -40, -180); }
 
 
-	//  printf ("Normal C_L=%d \t C_R=%d", C_L, C_R);
-	//  printf("_DATA C_L=%d \t C_R=%d \n", C_L, C_R);
 	analiticTemperature();
 		// блок замены данных от джойстика для более плавного трогания
 	CaterpL.SetInputReadVelocity(C_L);
@@ -176,7 +152,6 @@ void loop()
 	CaterpR.DriveCaterpillar();
 	CaterpL.Run_Run();
 	CaterpR.Run_Run();
-	//  printf("GEN_SOST=%d \t sendWorkRelay=%d \n", genSost, sendWorkRelay);
 	
 }
 
@@ -203,8 +178,8 @@ void inicRadio() {
 */
 void inicTemperature() {
 	Temperature.reset();							//	Начинаем взаимодействие со сброса всех предыдущих команд и параметров
-	Temperature.write(0xCC);					// Даем датчику DS18b20 команду пропустить поиск по адресу. В нашем случае только одно устрйоство 
-	Temperature.write(0x44);					// Даем датчику DS18b20 команду измерить температуру. Само значение температуры мы еще не получаем - датчик его положит во внутреннюю память
+	Temperature.write(0xCC);					//	Даем датчику DS18b20 команду пропустить поиск по адресу. В нашем случае только одно устрйоство 
+	Temperature.write(0x44);					//	Даем датчику DS18b20 команду измерить температуру. Само значение температуры мы еще не получаем - датчик его положит во внутреннюю память
 	lastTemperatureControl=millis();	//	Запомнили когда српосили данные
 	sostTemperatureOpros=true;				//	перевели в состояние ожидания готовности данных
 }
@@ -213,14 +188,16 @@ void inicTemperature() {
 Получение данных от датчика температуры
 */
 void readDataTemperature() {
+	//printf("Зашли \n");
 	if (sostTemperatureOpros) {	//	состояние ожидания готовности данных
 		if ((lastTemperatureControl + timeOutTemperatureData) < millis()) {	//	если данные готовы
-			Temperature.reset(); // Теперь готовимся получить значение измеренной температуры
+			//printf("данные готовы \n");
+			Temperature.reset();			//	Теперь готовимся получить значение измеренной температуры
 			Temperature.write(0xCC);
-			Temperature.write(0xBE); // Просим передать нам значение регистров со значением температуры
+			Temperature.write(0xBE);	//	Просим передать нам значение регистров со значением температуры
 			// Получаем и считываем ответ
-			dataTemperatureRAW[0] = Temperature.read(); // Читаем младший байт значения температуры
-			dataTemperatureRAW[1] = Temperature.read(); // А теперь старший
+			dataTemperatureRAW[0] = Temperature.read();	// Читаем младший байт значения температуры
+			dataTemperatureRAW[1] = Temperature.read();	// А теперь старший
 			dataTemperature = ((dataTemperatureRAW[1] << 8) | dataTemperatureRAW[0]);
 			sostTemperatureOpros=false;
 			lastTemperatureControl=millis();
@@ -228,6 +205,7 @@ void readDataTemperature() {
 	}
 	else {	//	если данные не ожидаем, проверяем сколько прошло времени от последнего запроса
 		if ((lastTemperatureControl + repeatTemperatureControl) < millis()) {	//	пора запрашивать по новой
+			//printf ("Пора спросить \n");
 			Temperature.reset();							//	Начинаем взаимодействие со сброса всех предыдущих команд и параметров
 			Temperature.write(0xCC);					// Даем датчику DS18b20 команду пропустить поиск по адресу. В нашем случае только одно устрйоство 
 			Temperature.write(0x44);					// Даем датчику DS18b20 команду измерить температуру. Само значение температуры мы еще не получаем - датчик его положит во внутреннюю память
