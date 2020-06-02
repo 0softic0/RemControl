@@ -287,8 +287,8 @@ void loop() {
 	// при положении джойстика "назад" логика по ускорению бортов меняется
 
 	int bortL, bortR;
-	bortL = -myLocal.Y; bortR = -myLocal.Y;
-	bortL = bortL - myLocal.X; bortR = bortR + myLocal.X;
+	bortL = myLocal.Y; bortR = myLocal.Y;
+	bortL = bortL + myLocal.X; bortR = bortR - myLocal.X;
 
 	// нормализуем по максимальному значению не более +/- 1024
 	if (bortL > maxWorkSpeed[peredacha]) { bortL = maxWorkSpeed[peredacha]; }
@@ -313,7 +313,8 @@ void loop() {
 
 	//	workData = myLocal;
 	
-	
+	//printf("dataVoltage=%d \n", dataVoltage);
+
 	//	пишем данные о состоянии батареи
 	lcd.setCursor(0, 0);
 	lcd.print("TX->");
@@ -328,6 +329,23 @@ void loop() {
 		char dSymb = decVolt + '0';
 		lcd.write(symb); lcd.write('.'); lcd.write(dSymb);
 //		lcd.print("   ");
+	}
+	//	блок вывода напряжения аккумуляторов
+	dataVoltage=dataVoltage+10;
+	lcd.print(" RX->");
+	if ((dataVoltage>100)&&(dataVoltage<400)){lcd.print("ERR"); }
+	if (dataVoltage>520){lcd.print("OK"); }
+	if ((dataVoltage > 400) && (dataVoltage < 520)) {
+		int voltDec=dataVoltage/100;
+		dataVoltage=dataVoltage- voltDec*100;
+		//printf("Единицы = %d \n", dataVoltage);
+
+		int voltEd=dataVoltage/10;
+		dataVoltage=dataVoltage-voltEd*10;
+		char symbDec=voltDec+'0'; lcd.write(symbDec);
+		char symbEd=voltEd+'0'; lcd.write(symbEd);
+		lcd.write('.');
+		char decAKB = dataVoltage+'0'; lcd.write(decAKB);
 	}
 
 }
