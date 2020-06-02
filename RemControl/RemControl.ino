@@ -127,6 +127,7 @@ constexpr auto leftCat = 0;
 constexpr auto rightCat = 1;
 
 int	dataVoltage;			//	данные с датчика вольтажа приемника
+unsigned long lastOutVoltageTime;
 
 
 void setup() {
@@ -235,6 +236,7 @@ void setup() {
 	delay(2000);
 	digitalWrite(lcdLight, LOW);
 
+	lastOutVoltageTime=millis();
 	
 }
 
@@ -314,39 +316,12 @@ void loop() {
 	//	workData = myLocal;
 	
 	//printf("dataVoltage=%d \n", dataVoltage);
-
-	//	пишем данные о состоянии батареи
-	lcd.setCursor(0, 0);
-	lcd.print("TX->");
-	int analogVolt=analogRead(pinVolt);
-	if (analogVolt > 900) { lcd.print("OK "); }
-	if (analogVolt < 600) { lcd.print("LOW"); }
-	if ((analogVolt >= 600) && (analogVolt <= 900)) {
-		int volt = analogVolt / 100;
-		int decVolt = analogVolt - (volt * 100);
-		decVolt = decVolt / 10;
-		char symb = volt + '0';
-		char dSymb = decVolt + '0';
-		lcd.write(symb); lcd.write('.'); lcd.write(dSymb);
-//		lcd.print("   ");
+	if (lastOutVoltageTime<(millis()-1001)){
+		outLCDtx();
+		outLCDrx();
+		lastOutVoltageTime=millis();
 	}
-	//	блок вывода напряжения аккумуляторов
-	dataVoltage=dataVoltage+10;
-	lcd.print(" RX->");
-	if ((dataVoltage>100)&&(dataVoltage<400)){lcd.print("ERR"); }
-	if (dataVoltage>520){lcd.print("OK"); }
-	if ((dataVoltage > 400) && (dataVoltage < 520)) {
-		int voltDec=dataVoltage/100;
-		dataVoltage=dataVoltage- voltDec*100;
-		//printf("Единицы = %d \n", dataVoltage);
 
-		int voltEd=dataVoltage/10;
-		dataVoltage=dataVoltage-voltEd*10;
-		char symbDec=voltDec+'0'; lcd.write(symbDec);
-		char symbEd=voltEd+'0'; lcd.write(symbEd);
-		lcd.write('.');
-		char decAKB = dataVoltage+'0'; lcd.write(decAKB);
-	}
 
 }
 
@@ -362,4 +337,43 @@ void setRadioChanal() {
 //    radio.openReadingPipe (1, 0x1234567890LL);
 //	radio.startListening();                     // Включаем приемник, начинаем прослушивать открытую трубу
 	delay(200);
+}
+
+void outLCDtx() {
+	//	пишем данные о состоянии батареи
+	lcd.setCursor(0, 0);
+	lcd.print("TX->");
+	int analogVolt = analogRead(pinVolt);
+	if (analogVolt > 900) { lcd.print("OK "); }
+	if (analogVolt < 600) { lcd.print("LOW"); }
+	if ((analogVolt >= 600) && (analogVolt <= 900)) {
+		int volt = analogVolt / 100;
+		int decVolt = analogVolt - (volt * 100);
+		decVolt = decVolt / 10;
+		char symb = volt + '0';
+		char dSymb = decVolt + '0';
+		lcd.write(symb); lcd.write('.'); lcd.write(dSymb);
+		//		lcd.print("   ");
+	}
+}
+
+void outLCDrx() {
+	//	блок вывода напряжения аккумуляторов
+	dataVoltage = dataVoltage + 10;
+	lcd.print(" RX->");
+	if ((dataVoltage > 100) && (dataVoltage < 400)) { lcd.print("ERR"); }
+	if (dataVoltage > 520) { lcd.print("OK"); }
+	if ((dataVoltage > 400) && (dataVoltage < 520)) {
+		int voltDec = dataVoltage / 100;
+		dataVoltage = dataVoltage - voltDec * 100;
+		//printf("Единицы = %d \n", dataVoltage);
+
+		int voltEd = dataVoltage / 10;
+		dataVoltage = dataVoltage - voltEd * 10;
+		char symbDec = voltDec + '0'; lcd.write(symbDec);
+		char symbEd = voltEd + '0'; lcd.write(symbEd);
+		lcd.write('.');
+		char decAKB = dataVoltage + '0'; lcd.write(decAKB);
+	}
+
 }
