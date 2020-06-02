@@ -112,11 +112,11 @@ void loop()
 	if (radio.available()) {																				//	Если в буфере имеются принятые данные
 		radio.read(&sendData, sizeof(sendData));											//	Читаем данные в массив data и указываем сколько байт читать
 		outData=millis();
-		printf("voltage=%d \n", dataVoltage);
+		//printf("voltage=%d \n", dataVoltage);
 		radio.writeAckPayload(1, &dataVoltage, sizeof(dataVoltage));	//	Отправляем значение бортового напряжения
 		lastDataTime = millis();																			//	запомнили время последнего удачного приема
 		digitalWrite(startDrivers, HIGH);															//	включаем драйвера
-		printf("данные получены \n" );
+		//printf("данные получены \n" );
 	}
 	else {
 		realDataTime = millis();										//	запомнили время отсутстви данных в приеме
@@ -131,7 +131,7 @@ void loop()
 	}
 	int C_L = sendData[leftCat];
 	int C_R = sendData[rightCat];
-		printf ("C_L=%d \t C_R=%d", C_L, C_R);
+		//printf ("C_L=%d \t C_R=%d", C_L, C_R);
 	C_L = constrain(C_L, -1024, 1024);      // нормализуем до максимального значения при прямом ходе
 	C_R = constrain(C_R, -1024, 1024);
 

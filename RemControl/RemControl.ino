@@ -104,9 +104,9 @@ LiquidCrystal_I2C lcd(addresLCD1602, 16, 2); // Задаем адрес и ра�
 	 1 - 128
 */
 int maxPeredacha = 5;
-int maxWorkSpeed[] = { 0,128,256,384,640,1024 };
+int maxWorkSpeed[] = { 0,296,478,660,842,1024 };
 int peredacha = 3;
-int maxSpeed = 384;
+int maxSpeed = maxWorkSpeed[peredacha];
 
 /* Структура для хранения информации о используемых русских символах и их текущем временном номере*/
 struct LCDRusChar
@@ -114,13 +114,13 @@ struct LCDRusChar
 	byte codRusCh;			//	код русской буквы после символа 208
 	byte* bykvaPoint;		//	ссылка на попиксельное отображение буквы
 	uint8_t temNumber;	//	временно присвоенный номер
-
 };
+
 LCDRusChar aaa[sizeRusArray];	// массив рабочей структуры
 
 RF24 radio(pinNRFce, pinNRFcsn);	//	Создаём объект radio для работы с библиотекой RF24, 
 																	//	указывая номера выводов nRF24L01+ (CE, CSN)
-int   sendData[2];		//	Создаём массив для приёма данных
+int		sendData[2];		//	Создаём массив для приёма данных
 											//	0 - левая гусеница,
 											//	1 - праввая гусеница;
 constexpr auto leftCat = 0;
@@ -146,10 +146,10 @@ void setup() {
 	pinMode(lcdLight, OUTPUT);	//	управление подсветкой
 
 	lcd.init();	//	Инициализация lcd дисплея
-	digitalWrite(lcdLight, HIGH);
+	digitalWrite(lcdLight, HIGH);	//	включили подсветку
 	outLCD("Привет!", 0, 0); delay(2000);
 	outLCD("Проверка центра", 0, 1);
-	// проверяем центр (8 раз считываем данные)
+	//	проверяем центр (8 раз считываем данные)
 	F_B_2 searthCenter; F_B_2* _searthCenter = &searthCenter;
 	searthCenter = myJoy.rawRead();
 	F_B_2 minCenter = searthCenter; F_B_2* _minCenter = &minCenter;
@@ -178,7 +178,7 @@ void setup() {
 	outLCD("Настраиваемся", 0, 0);
 	lcd.setCursor(0, 1);
 	for (int i = 0; i < 16; i++)	//	имитация загрузки параметров
-	{ lcd.write('*'); delay(50 * i); }
+	{ lcd.write('*'); delay(45 * i); }
 
 	//	проверка совпадения текущего центрального расположения и ранее записанного
 
@@ -212,7 +212,7 @@ void setup() {
 			digitalWrite(lcdLight, HIGH);
 		}
 	} else {
- 		// система в нормальном состоянии
+		// система в нормальном состоянии
 		lcd.clear();
 		clearNumRusChar();
 		outLCD("Система настрена", 0, 0);
@@ -295,7 +295,7 @@ void loop() {
 	if (bortL < -maxWorkSpeed[peredacha]) { bortL = -maxWorkSpeed[peredacha]; }
 	if (bortR > maxWorkSpeed[peredacha]) { bortR = maxWorkSpeed[peredacha]; }
 	if (bortR < -maxWorkSpeed[peredacha]) { bortR = -maxWorkSpeed[peredacha]; }
-	printf("Левая = %d \t Правая=%d \n", bortL, bortR);
+	//printf("Левая = %d \t Правая=%d \n", bortL, bortR);
 	sendData[leftCat]=-bortL; sendData[rightCat]=-bortR;
 
 	// передаем данные
@@ -304,7 +304,7 @@ void loop() {
 		if (radio.isAckPayloadAvailable()) {                       // Если в буфере имеются принятые данные из пакета подтверждения приёма, то ...
 			radio.read(&dataVoltage, sizeof(dataVoltage));                 // Читаем данные из буфера в массив ackData указывая сколько всего байт может поместиться в массив.
 		}
-		printf("GOOD %d \n\r", dataVoltage);
+		//printf("GOOD %d \n\r", dataVoltage);
 	}
 	else {
 		//      Serial.println(100);
@@ -318,7 +318,7 @@ void loop() {
 	lcd.setCursor(0, 0);
 	lcd.print("TX->");
 	int analogVolt=analogRead(pinVolt);
-	if (analogVolt > 900) { lcd.print("OK"); }
+	if (analogVolt > 900) { lcd.print("OK "); }
 	if (analogVolt < 600) { lcd.print("LOW"); }
 	if ((analogVolt >= 600) && (analogVolt <= 900)) {
 		int volt = analogVolt / 100;

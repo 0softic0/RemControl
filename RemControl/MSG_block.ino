@@ -52,7 +52,7 @@ void outLCD(String aaa, int _col, int _row) {
 	for (int i = 0; i < kolvo; i++) {	//	перебираем все байты
 		char _symbol = aaa[i];
 		byte _bSymbol = _symbol;
-		Serial.println(_bSymbol);
+		//Serial.println(_bSymbol);
 		if (_bSymbol < 208) {	//	латиница пришла
 			//	преобразуем все в верхний регистр "a"	97; "A"	65; z 122 Z 90
 			if ((_bSymbol >= 97) && (_bSymbol <= 122)) {	//	прописная буква
