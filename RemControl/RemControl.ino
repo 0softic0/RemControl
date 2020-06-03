@@ -50,7 +50,9 @@
 
 constexpr auto sizeRusArray = 21;	// кол-во русских символов
 
-/// описание пинов подключения
+/*
+описание пинов подключения для Arduino NANO
+*/
 //constexpr auto = 0;
 //constexpr auto = 1;
 //constexpr auto = 2;
@@ -76,25 +78,14 @@ constexpr auto pinVolt = 21;	//	A7	подключенный через дели�
 
 
 
-/// Определяем подключение резиторов джойстика
-//int fX = A0;// A2;
-//int bX = A3;// A5;
-//int fY = A1;// A3;
-//int bY = A2;// A4;
-//uint8_t pinVolt = A7;	//	подключенный через делитель на основное напряжение (6,04 В - 630 единиц)
-/// подключение кнопок
-//int signalPin = 9;// 8;		//	пин инициализации джойстика
-//uint8_t velPinPlus = 8;// 7;		//	увеличение максимальной скорости
-//uint8_t velPinMinus = 7;// 6;	//	снижение максимальной скорости
 
-Joy2_2axis myJoy;
+Joy2_2axis myJoy;				//	определили ДухОсевой джойстик
 X_Y_data workData;
 ERROMdata workSaveData;	// переменная для хранения параметров джойстика
 
 // параметры дисплея
 word addresLCD1602 = 0x38;
 LiquidCrystal_I2C lcd(addresLCD1602, 16, 2); // Задаем адрес и размерность дисплея.
-//uint8_t lcdLight = 3;
 
 /* параметры управления скоростью: 1-5
 	 5 - 1024
@@ -103,10 +94,10 @@ LiquidCrystal_I2C lcd(addresLCD1602, 16, 2); // Задаем адрес и ра�
 	 2	 256
 	 1 - 128
 */
-int maxPeredacha = 5;
-int maxWorkSpeed[] = { 0,296,478,660,842,1024 };
-int peredacha = 3;
-int maxSpeed = maxWorkSpeed[peredacha];
+int maxPeredacha = 5;															//	максимальное кол-во передач
+int maxWorkSpeed[] = { 0,296,478,660,842,1024 };	//	значение скоростей для переключения
+int peredacha = 3;																//	текущая передача
+int maxSpeed = maxWorkSpeed[peredacha];						//	текущая максимальная скорость
 
 /* Структура для хранения информации о используемых русских символах и их текущем временном номере*/
 struct LCDRusChar
@@ -126,8 +117,12 @@ int		sendData[2];		//	Создаём массив для приёма данны
 constexpr auto leftCat = 0;
 constexpr auto rightCat = 1;
 
-int	dataVoltage;			//	данные с датчика вольтажа приемника
-unsigned long lastOutVoltageTime;
+int	dataVoltage=0;												//	данные с датчика вольтажа приемника
+int averageDataVoltage=0;									//	максимальное значение напряжения аккумуляторов
+int analogVolt=0;													//	данные напряжения батареи
+int averageVolt=0;												//	максимальное значение вольтажа батареи
+unsigned long lastOutVoltageTime;					//	время последнего вывода данных напряжения аккумуляторов и батареи
+unsigned long periodOutVoltageTime=1001;	//	периодичность вывода напряжений
 
 
 void setup() {
@@ -302,30 +297,32 @@ void loop() {
 
 	// передаем данные
 	if (radio.write(&sendData, sizeof(sendData))) {
-		//      Serial.println(10);
 		if (radio.isAckPayloadAvailable()) {                       // Если в буфере имеются принятые данные из пакета подтверждения приёма, то ...
 			radio.read(&dataVoltage, sizeof(dataVoltage));                 // Читаем данные из буфера в массив ackData указывая сколько всего байт может поместиться в массив.
 		}
 		//printf("GOOD %d \n\r", dataVoltage);
 	}
 	else {
-		//      Serial.println(100);
 		printf("BED \n\r");
 	}
 
 	//	workData = myLocal;
 	
 	//printf("dataVoltage=%d \n", dataVoltage);
-	if (lastOutVoltageTime<(millis()-1001)){
+
+	//	Выбираем максимальное значение
+	if (averageDataVoltage<dataVoltage){averageDataVoltage=dataVoltage;}
+	if (averageVolt<analogVolt){averageVolt=analogVolt;}
+
+	//	Проверяем - пора ли выводить данные о напряжении
+	if (lastOutVoltageTime<(millis()-periodOutVoltageTime)){
 		outLCDtx();
 		outLCDrx();
 		lastOutVoltageTime=millis();
 	}
-
-
 }
 
-/*инициализация передатчика*/
+/*	инициализация передатчика	*/
 void setRadioChanal() {
 	// инициализация радио-модуля
 	radio.begin();                                // Инициируем работу nRF24L01+
@@ -339,11 +336,13 @@ void setRadioChanal() {
 	delay(200);
 }
 
+/*	вывод напряжения передатчика	*/
 void outLCDtx() {
 	//	пишем данные о состоянии батареи
 	lcd.setCursor(0, 0);
 	lcd.print("TX->");
-	int analogVolt = analogRead(pinVolt);
+	analogVolt = averageVolt;
+	averageVolt=0;
 	if (analogVolt > 900) { lcd.print("OK "); }
 	if (analogVolt < 600) { lcd.print("LOW"); }
 	if ((analogVolt >= 600) && (analogVolt <= 900)) {
@@ -356,10 +355,11 @@ void outLCDtx() {
 		//		lcd.print("   ");
 	}
 }
-
+/*	вывод напряжения приемника	*/
 void outLCDrx() {
 	//	блок вывода напряжения аккумуляторов
-	dataVoltage = dataVoltage + 10;
+	dataVoltage = averageDataVoltage + 10;
+	averageDataVoltage=0;
 	lcd.print(" RX->");
 	if ((dataVoltage > 100) && (dataVoltage < 400)) { lcd.print("ERR"); }
 	if (dataVoltage > 520) { lcd.print("OK"); }
