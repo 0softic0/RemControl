@@ -19,11 +19,23 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestPriem", "TestPriem\Test
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestTemperature", "TestTemperature\TestTemperature.vcxproj", "{82E799FB-5915-4DF9-9135-CA927A2E62CE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Wire-1.0", "Libraries\Wire\1.0\Wire\Wire-1.0.vcxitems", "{D57CAB0E-0027-4B9F-BEBA-188988406998}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestTemperature001", "TestTemperature001\TestTemperature001.vcxproj", "{F9871DFB-ACAB-416B-9E93-3063FB32AE3D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testLCD1602", "testLCD1602\testLCD1602.vcxproj", "{7E1BEC01-A895-44F9-B2CE-DCDC9C73A5BF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testI2C", "testI2C\testI2C.vcxproj", "{F34A6595-B496-46A5-AA7C-335E5369A8A6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LiquidCrystal_I2C_V112-1.1.2", "..\..\..\..\AnPo\Documents\Arduino\libraries\LiquidCrystal_I2C_V112\LiquidCrystal_I2C_V112-1.1.2.vcxitems", "{367E4B12-1E23-4280-B77F-52623F97B4DE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tulpar-Gaz-LCDcontrol", "Tulpar-Gaz-LCDcontrol\Tulpar-Gaz-LCDcontrol.vcxproj", "{213FF365-6A62-448E-B97E-64C27D189504}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\..\..\..\AnPo\Documents\Arduino\libraries\LiquidCrystal_I2C_V112\LiquidCrystal_I2C_V112-1.1.2.vcxitems*{213ff365-6a62-448e-b97e-64c27d189504}*SharedItemsImports = 4
+		..\..\..\..\AnPo\Documents\Arduino\libraries\LiquidCrystal_I2C_V112\LiquidCrystal_I2C_V112-1.1.2.vcxitems*{367e4b12-1e23-4280-b77f-52623f97b4de}*SharedItemsImports = 9
+		..\..\..\..\AnPo\Documents\Arduino\libraries\LiquidCrystal_I2C_V112\LiquidCrystal_I2C_V112-1.1.2.vcxitems*{7e1bec01-a895-44f9-b2ce-dcdc9c73a5bf}*SharedItemsImports = 4
+		..\..\..\..\AnPo\Documents\Arduino\libraries\LiquidCrystal_I2C_V112\LiquidCrystal_I2C_V112-1.1.2.vcxitems*{c5f80730-f44f-4478-bdae-6634efc2ca88}*SharedItemsImports = 4
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
 		Release|x86 = Release|x86
@@ -65,6 +77,18 @@ Global
 		{F9871DFB-ACAB-416B-9E93-3063FB32AE3D}.Debug|x86.Build.0 = Debug|Win32
 		{F9871DFB-ACAB-416B-9E93-3063FB32AE3D}.Release|x86.ActiveCfg = Release|Win32
 		{F9871DFB-ACAB-416B-9E93-3063FB32AE3D}.Release|x86.Build.0 = Release|Win32
+		{7E1BEC01-A895-44F9-B2CE-DCDC9C73A5BF}.Debug|x86.ActiveCfg = Debug|Win32
+		{7E1BEC01-A895-44F9-B2CE-DCDC9C73A5BF}.Debug|x86.Build.0 = Debug|Win32
+		{7E1BEC01-A895-44F9-B2CE-DCDC9C73A5BF}.Release|x86.ActiveCfg = Release|Win32
+		{7E1BEC01-A895-44F9-B2CE-DCDC9C73A5BF}.Release|x86.Build.0 = Release|Win32
+		{F34A6595-B496-46A5-AA7C-335E5369A8A6}.Debug|x86.ActiveCfg = Debug|Win32
+		{F34A6595-B496-46A5-AA7C-335E5369A8A6}.Debug|x86.Build.0 = Debug|Win32
+		{F34A6595-B496-46A5-AA7C-335E5369A8A6}.Release|x86.ActiveCfg = Release|Win32
+		{F34A6595-B496-46A5-AA7C-335E5369A8A6}.Release|x86.Build.0 = Release|Win32
+		{213FF365-6A62-448E-B97E-64C27D189504}.Debug|x86.ActiveCfg = Debug|Win32
+		{213FF365-6A62-448E-B97E-64C27D189504}.Debug|x86.Build.0 = Debug|Win32
+		{213FF365-6A62-448E-B97E-64C27D189504}.Release|x86.ActiveCfg = Release|Win32
+		{213FF365-6A62-448E-B97E-64C27D189504}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
