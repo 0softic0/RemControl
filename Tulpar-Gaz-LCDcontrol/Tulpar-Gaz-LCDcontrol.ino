@@ -4,6 +4,8 @@
  Author:	јнатолий
 
  ”правление электронным газом через ARDUINO
+
+ ver: 1.0.18 E
 */
 #include <LiquidCrystal.h>
 #include "printf.h"
@@ -72,7 +74,7 @@ word addresLCD1602 = 0x3F;
 LiquidCrystal_I2C lcd(addresLCD1602, 16, 2); // «адаем адрес и размерность диспле€.
 int markerVoltage=0;
 unsigned long lastOutVoltage;	//	последее врем€ вывода на дисплей
-int periodOutVoltage=1000;		//	период вывода напр€жени€ на дисплей
+int periodOutVoltage=2000;		//	период вывода напр€жени€ на дисплей
 
 /* —труктура дл€ хранени€ информации о используемых русских символах и их текущем временном номере*/
 struct LCDRusChar
@@ -97,7 +99,7 @@ void setup() {
 	lcd.backlight();
 	delay(1000);
 	outLCD("Tulpar xIII", 0, 0); delay(500);
-	outLCD("ver: 1.0.17 E", 0, 1); delay(500);
+	outLCD("ver: 1.0.18 E", 0, 1); delay(500);
 	lcd.noBacklight();
 
 
@@ -119,7 +121,7 @@ void setup() {
 void loop() {
 	driveGaz();
 	loadVoltage();
-	printf ("voltage = %d \n", voltage);
+//	printf ("voltage = %d \n", voltage);
 	VoltageOutLCD();
 }
 
@@ -135,7 +137,7 @@ void driveGaz() {
 	if (inputGaz > maxGazRead) { inputGaz = maxGazRead; }
 	//  printf("***Gaz = %d == Control = %d Normal =", inputGaz, inputControl);
 	int normalGaz = map(inputGaz, minGazRead, maxGazRead, minGazWrite, maxGazWrite);
-	printf("%d \n", normalGaz);
+//	printf("%d \n", normalGaz);
 	if (normalGaz > 50 && normalGaz < 75) { normalGaz = 80; }
 	if (normalGaz < 50) { normalGaz = minGazWrite; }
 	if (lastTimeIncrDecr < (millis() - periodIncrDecr)) { //  если пора слать новое значение скорости
