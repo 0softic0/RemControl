@@ -39,11 +39,12 @@
 
 
  */
+#include <LiquidCrystal.h>
 #include "DubleAxis.h"
 #include "printf.h"
 #include <EEPROM.h>
 #include <Wire.h>
-#include "LiquidCrystal_I2C.h"    // Подключаем библиотеку LiquidCrystal_I2C
+#include <LiquidCrystal_I2C.h>    // Подключаем библиотеку LiquidCrystal_I2C
 #include <SPI.h>      //  Подключаем библиотеку для работы с шиной SPI
 #include <nRF24L01.h> //  Подключаем файл настроек из библиотеки RF24
 #include <RF24.h>     //  Подключаем библиотеку для работы с nRF24L01+
@@ -84,7 +85,7 @@ X_Y_data workData;
 ERROMdata workSaveData;	// переменная для хранения параметров джойстика
 
 // параметры дисплея
-word addresLCD1602 = 0x38;
+word addresLCD1602 = 0x3F;	//	0x38
 LiquidCrystal_I2C lcd(addresLCD1602, 16, 2); // Задаем адрес и размерность дисплея.
 
 /* параметры управления скоростью: 1-5
