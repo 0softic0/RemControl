@@ -1,4 +1,4 @@
-/*
+/*============================================================================
  Name:		ElectricGaz.ino
  Created:	12.05.2020 16:05:38
  Author:	Анатолий
@@ -6,14 +6,25 @@
  Управление электронным газом через ARDUINO
 
  ver: 1.0.18 E
-*/
+ =============================================================================
+ 1.	В следующей версии - перевести выдаваемый управляющий сигнал на D9
+ тогда счетчики будут работать нормально
+ 2.	Контроль поставить от второго резистора
+ 3.	Запись в постоянную память времени наработки.
+ ===========================================================================
+ ver 1.0.19 E
+ изменена работа индикации. Теперь панель светится всегда, при включеном питании.
+ Моргает, при низком заряде на аккумуляторах
+ ============================================================================*/
+
 #include <LiquidCrystal.h>
 #include "printf.h"
 #include <EEPROM.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>    // Подключаем библиотеку LiquidCrystal_I2C
 
-/* Описание подключений
+/*----------------------------------------------------------------------------
+===				Описание подключений
 D01
 D02
 D03		-	LCD1602 - подсветка
@@ -37,7 +48,7 @@ A5(19)	-	LCD1602
 A6(20)	-	контрольные данные резервного датчика
 A7(21)	-	данные с основного датчика
 
-*/
+-----------------------------------------------------------------------------*/
 constexpr auto sizeRusArray = 21;	// кол-во русских символов
 
 
@@ -62,21 +73,20 @@ int lastGazWrite;
 /* контроль напряжения*/
 unsigned long lastTimeVoltage;	//	последнее определение напряжения
 int periodTimeVoltage=100;
-int nomTestVoltage = 1;			//	номер считанного напряжения
-int kolvoTestVoltage = 8;		//	количество считываемых значений
-int voltage = 0;				//	текущее значение вольтажа
-int workVoltage = 0;			//	рабочее накопительное значение вольтажа
-int lowVoltage=41;				//	значение при котором начинает моргать дисплей
+int nomTestVoltage = 1;					//	номер считанного напряжения
+int kolvoTestVoltage = 8;				//	количество считываемых значений
+int voltage = 0;								//	текущее значение вольтажа
+int workVoltage = 0;						//	рабочее накопительное значение вольтажа
+int lowVoltage=41;							//	значение при котором начинает моргать дисплей
 
 
 // параметры дисплея
 word addresLCD1602 = 0x3F;
 LiquidCrystal_I2C lcd(addresLCD1602, 16, 2); // Задаем адрес и размерность дисплея.
 int markerVoltage=0;
-unsigned long lastOutVoltage;	//	последее время вывода на дисплей
-int periodOutVoltage=2000;		//	период вывода напряжения на дисплей
+unsigned long lastOutVoltage;						//	последее время вывода на дисплей
+unsigned int periodOutVoltage=62500;		//	период вывода напряжения на дисплей (в один герц)
 
-/* Структура для хранения информации о используемых русских символах и их текущем временном номере*/
 struct LCDRusChar
 {
 	byte codRusCh;			//	код русской буквы после символа 208
@@ -86,21 +96,16 @@ struct LCDRusChar
 
 LCDRusChar aaa[sizeRusArray];	// массив рабочей структуры
 
-// the setup function runs once when you press reset or power the board
+
 void setup() {
+	Wire.setClock(50000);
+	Wire.begin();
 	lcd.init();	//	Инициализация lcd дисплея
-//	outInicArray();	//	инициализация массива русских букв
-//	pinMode(pinLightLCD, OUTPUT);	//	инициализация пина управления подсветкой
-//	digitalWrite(pinLightLCD, LOW); delay(1000);	//	включили подсветку
-//	digitalWrite(pinLightLCD, HIGH); delay(1000);	//	включили подсветку
-//	digitalWrite(pinLightLCD, LOW); delay(1000);	//	включили подсветку
-//	digitalWrite(pinLightLCD, HIGH); delay(1000);	//	включили подсветку
-//	delay(1000);
 	lcd.backlight();
 	delay(1000);
-	outLCD("Tulpar xIII", 0, 0); delay(500);
-	outLCD("ver: 1.0.18 E", 0, 1); delay(500);
-	lcd.noBacklight();
+	outLCD("Tulpar xIII", 0, 0); delay(700);
+	outLCD("ver: 1.0.19 E", 0, 1); delay(1500);
+//	lcd.noBacklight();	// тушим панель - в 1.0.19Е - не тушим
 
 
 	TCCR0B = 0b00000001;  // x1
@@ -150,7 +155,7 @@ void driveGaz() {
 			if (lastGazWrite > normalGaz) { lastGazWrite = normalGaz; };
 		}
 		lastTimeIncrDecr = millis();
-		analogWrite(5, lastGazWrite);
+		analogWrite(pinOutVelocity, lastGazWrite);
 	}
 	//  analogWrite(5, normalGaz);
 }
@@ -158,9 +163,9 @@ void driveGaz() {
 /* Считывание значений напряжения*/
 void loadVoltage() {
 	if (lastTimeVoltage < (millis() - periodTimeVoltage)) {	//	если пора считывать значение напряжения
-		workVoltage = workVoltage + analogRead(pinVoltage);	//	добавили считанное значение в копилку
-		nomTestVoltage++;	//	увеличили значение счетчика
-		if (nomTestVoltage > kolvoTestVoltage) {	//	считано достаточно кол-во измерений
+		workVoltage = workVoltage + analogRead(pinVoltage);		//	добавили считанное значение в копилку
+		nomTestVoltage++;																			//	увеличили значение счетчика
+		if (nomTestVoltage > kolvoTestVoltage) {							//	считано достаточно кол-во измерений
 			nomTestVoltage = 1;
 			voltage = (workVoltage / kolvoTestVoltage) / 17;	//	17 подобрано эксперементально
 			workVoltage = 0;
@@ -173,21 +178,23 @@ void loadVoltage() {
 void 	VoltageOutLCD() {
 	// Проверяем пора ли выводить новое значение
 	if (lastOutVoltage < (millis() - periodOutVoltage)) {
-		lcd.setCursor(0,1);	//	выводим значение
+		lcd.setCursor(0,1);																	//	выводим значение
 		outLCD("                ",0,1);
 		outLCD("Voltage:",0,1);
 		lcd.print(voltage);
-		if (voltage < lowVoltage) {	//	если напряжение низкое
-			if (markerVoltage == 0) {	//	если дисплей потушен
+		lcd.print("V");
+		if (voltage < lowVoltage) {													//	если напряжение низкое
+			if (markerVoltage == 0) {													//	если дисплей потушен
 				lcd.backlight(); markerVoltage=1;
 			} else {
 				lcd.noBacklight(); markerVoltage=0;
 			}
 		} else {
-			lcd.noBacklight();
+//			lcd.noBacklight();
+			lcd.backlight();	// ver 1.0.19E - включаем дисплей
 		}
 
-		lastOutVoltage=millis();	//	запоминаем новое последнее время
+		lastOutVoltage=millis();														//	запоминаем новое последнее время
 	}
 
 }

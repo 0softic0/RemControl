@@ -90,6 +90,6 @@ typedef void *__builtin_va_list;
 #define pgm_read_ptr(address_short)   short()
 
 #include "Tulpar-Gaz-LCDcontrol.ino"
-#include "..\RemControl\MSG_block.ino"
+#include "MSG_block.ino"
 #endif
 #endif

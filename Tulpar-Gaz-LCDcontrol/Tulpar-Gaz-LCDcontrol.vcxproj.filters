@@ -16,7 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Tulpar-Gaz-LCDcontrol.ino" />
-    <None Include="..\RemControl\MSG_block.ino" />
+    <None Include="MSG_block.ino" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.Tulpar-Gaz-LCDcontrol.vsarduino.h">
