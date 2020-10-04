@@ -15,6 +15,11 @@
  ver 1.0.19 E
  изменена работа индикации. Теперь панель светится всегда, при включеном питании.
  Моргает, при низком заряде на аккумуляторах
+ ============================================================================
+ ver 1.1.0 E
+ Добавлен подсчет моточасов. 
+ ВНИМАНИЕ! Предварительно скинуть значения EEPROM в ноль! (программа ClearEEPROM)
+
  ============================================================================*/
 
 #include <LiquidCrystal.h>
@@ -81,6 +86,7 @@ int lowVoltage=41;							//	значение при котором начинает моргать дисплей
 
 
 // параметры дисплея
+//word addresLCD1602 = 0x27; // 0x3F;
 word addresLCD1602 = 0x3F;
 LiquidCrystal_I2C lcd(addresLCD1602, 16, 2); // Задаем адрес и размерность дисплея.
 int markerVoltage=0;
@@ -96,15 +102,21 @@ struct LCDRusChar
 
 LCDRusChar aaa[sizeRusArray];	// массив рабочей структуры
 
+/* Данные для счетчика мото-часов*/
+int nomLastNote = 0;						//	номер последней заполненной ячейки
+unsigned int realTimeWork = 0;	//	реальное значение времени в минутах
+unsigned long lastFixTime;			//	последнее зафиксированное время
+
+
 
 void setup() {
-	Wire.setClock(50000);
+	Wire.setClock(31000);
 	Wire.begin();
 	lcd.init();	//	Инициализация lcd дисплея
 	lcd.backlight();
 	delay(1000);
 	outLCD("Tulpar xIII", 0, 0); delay(700);
-	outLCD("ver: 1.0.19 E", 0, 1); delay(1500);
+	outLCD("ver: 1.1.0 E", 0, 1); delay(1500);
 //	lcd.noBacklight();	// тушим панель - в 1.0.19Е - не тушим
 
 
@@ -113,17 +125,33 @@ void setup() {
 	
 	Serial.begin(9600);
 	printf_begin();
+	printf("начали \n");
 	pinMode(pinOutVelocity, OUTPUT);
 	lastTimeIncrDecr = millis();				//  запомнили текущее время
-	lastTimeVoltage = lastTimeIncrDecr;	//	и для считывания напряжения
+	lastTimeVoltage = lastTimeIncrDecr;	//	и для считывания напряжения																									 
 	lastOutVoltage=lastTimeIncrDecr;		//	для дисплея
 	lastGazWrite = minGazWrite;
-	
-	
+
+	SearthLastRealTimeWork();	//	поиск и инициализация наработанных часов
+
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
+	unsigned long realTime = millis();
+	if (realTime >= (64*60000)) {	//	если еще прошла одна минута
+		realTime = realTime - (64*60000);	//	ставим маркер
+	}
+	else {
+		realTime = lastFixTime - 1;	//	если минута не прошла - не даем уйти в минусовые значения
+	}
+	if (lastFixTime <= realTime) {	//	минута прошла
+		realTimeWork++;								//	увеличили значение минут
+		lastFixTime = millis();				//	зафиксировали время
+		printf("Значение EEPROM ===================realTimeWork=%d \t lastFixTime=%d \n", realTimeWork, lastFixTime);
+		saveEEPROM();	//	записали в память
+	}
+
 	driveGaz();
 	loadVoltage();
 //	printf ("voltage = %d \n", voltage);
@@ -180,9 +208,10 @@ void 	VoltageOutLCD() {
 	if (lastOutVoltage < (millis() - periodOutVoltage)) {
 		lcd.setCursor(0,1);																	//	выводим значение
 		outLCD("                ",0,1);
-		outLCD("Voltage:",0,1);
+		outLCD("Volt:",0,1);
 		lcd.print(voltage);
 		lcd.print("V");
+		outRealTime();	//	выводим значение отработанного времени
 		if (voltage < lowVoltage) {													//	если напряжение низкое
 			if (markerVoltage == 0) {													//	если дисплей потушен
 				lcd.backlight(); markerVoltage=1;
@@ -196,5 +225,58 @@ void 	VoltageOutLCD() {
 
 		lastOutVoltage=millis();														//	запоминаем новое последнее время
 	}
+
+}
+
+//	Поиск окончания последей записи и кол-ва минут
+void SearthLastRealTimeWork() {
+	int nomSeartch = 0;	//	начинаем с первой ячейки
+	printf("Nachali poisk \n");
+	while (nomSeartch <= 1023) {
+		uint8_t readTimeWork1 = EEPROM.read(nomSeartch);	//	получаем старший байт
+		nomSeartch++;																			//	переходим к следующему
+		unsigned int readTimeWork = readTimeWork1 * 256 + EEPROM.read(nomSeartch);	//	формируем общее кол-во наработанных минут
+		if (readTimeWork > realTimeWork) {	//	сравниваем с предыдущим значением
+			nomLastNote = nomSeartch - 1;			//	если больше - запоминаем его расположение
+			realTimeWork = readTimeWork;			//	делаем его ориентиром
+		}
+		nomSeartch++;	//	переместились 
+	}
+	printf("NomLastNote=%d \t realTimeWork=%u \n", nomLastNote, realTimeWork);
+	lastFixTime = millis();	//	зафиксировали время для дальнейшего отсчета секунд
+
+}
+
+/* Запись значения моточасов*/
+void saveEEPROM() {
+	int nomSave = nomLastNote + 2;	//	сместились в следующую ячейку
+	if (nomLastNote > 1023) {	//	если дошли до конца - начинаем с начала
+		nomSave = 0;
+	}
+	nomLastNote = nomSave;
+	uint8_t byteSt = realTimeWork / 256;
+	uint8_t byteMl = realTimeWork - byteSt * 256;
+	printf("nomLastNote= %d byteSt=%o \t byteMl=%o \n", nomLastNote, byteSt, byteMl);
+	EEPROM.write(nomSave, byteSt);
+	nomSave++;
+	EEPROM.write(nomSave, byteMl);
+}
+
+void outRealTime() {
+	int Chas = realTimeWork / 60;	//	полное значение часов
+	int Minut = realTimeWork - Chas * 60;	//	кол-во минут
+	int Chas_tsd = Chas / 10;
+	int Chas_e = Chas - Chas_tsd * 10;
+	int Chas_ts = Chas_tsd / 10;
+	int Chas_d = Chas_tsd - Chas_ts * 10;
+	int Chas_t = Chas_ts / 10;
+	int Chas_s = Chas_ts - Chas_t * 10;
+
+	int Minut_d = Minut / 10;
+	int Minut_e = Minut - Minut_d * 10;
+	lcd.print(" ");
+	lcd.print(Chas_t); lcd.print(Chas_s); lcd.print(Chas_d); lcd.print(Chas_e);
+	lcd.print(":");
+	lcd.print(Minut_d); lcd.print(Minut_e);
 
 }

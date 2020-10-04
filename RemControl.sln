@@ -25,17 +25,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testLCD1602", "testLCD1602\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testI2C", "testI2C\testI2C.vcxproj", "{F34A6595-B496-46A5-AA7C-335E5369A8A6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LiquidCrystal_I2C_V112-1.1.2", "..\..\..\..\AnPo\Documents\Arduino\libraries\LiquidCrystal_I2C_V112\LiquidCrystal_I2C_V112-1.1.2.vcxitems", "{367E4B12-1E23-4280-B77F-52623F97B4DE}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tulpar-Gaz-LCDcontrol", "Tulpar-Gaz-LCDcontrol\Tulpar-Gaz-LCDcontrol.vcxproj", "{213FF365-6A62-448E-B97E-64C27D189504}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Clear_EEPROM", "..\Clear_EEPROM\Clear_EEPROM.vcxproj", "{C070D31C-B1DD-4DB8-AC7F-942BA9D737BA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Timer_minut", "..\Timer_minut\Timer_minut.vcxproj", "{3A55DD18-F70A-4419-AB9B-21A882B96AC2}"
+EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\..\..\..\AnPo\Documents\Arduino\libraries\LiquidCrystal_I2C_V112\LiquidCrystal_I2C_V112-1.1.2.vcxitems*{213ff365-6a62-448e-b97e-64c27d189504}*SharedItemsImports = 4
-		..\..\..\..\AnPo\Documents\Arduino\libraries\LiquidCrystal_I2C_V112\LiquidCrystal_I2C_V112-1.1.2.vcxitems*{367e4b12-1e23-4280-b77f-52623f97b4de}*SharedItemsImports = 9
-		..\..\..\..\AnPo\Documents\Arduino\libraries\LiquidCrystal_I2C_V112\LiquidCrystal_I2C_V112-1.1.2.vcxitems*{7e1bec01-a895-44f9-b2ce-dcdc9c73a5bf}*SharedItemsImports = 4
-		..\..\..\..\AnPo\Documents\Arduino\libraries\LiquidCrystal_I2C_V112\LiquidCrystal_I2C_V112-1.1.2.vcxitems*{c5f80730-f44f-4478-bdae-6634efc2ca88}*SharedItemsImports = 4
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
 		Release|x86 = Release|x86
@@ -89,6 +85,14 @@ Global
 		{213FF365-6A62-448E-B97E-64C27D189504}.Debug|x86.Build.0 = Debug|Win32
 		{213FF365-6A62-448E-B97E-64C27D189504}.Release|x86.ActiveCfg = Release|Win32
 		{213FF365-6A62-448E-B97E-64C27D189504}.Release|x86.Build.0 = Release|Win32
+		{C070D31C-B1DD-4DB8-AC7F-942BA9D737BA}.Debug|x86.ActiveCfg = Debug|Win32
+		{C070D31C-B1DD-4DB8-AC7F-942BA9D737BA}.Debug|x86.Build.0 = Debug|Win32
+		{C070D31C-B1DD-4DB8-AC7F-942BA9D737BA}.Release|x86.ActiveCfg = Release|Win32
+		{C070D31C-B1DD-4DB8-AC7F-942BA9D737BA}.Release|x86.Build.0 = Release|Win32
+		{3A55DD18-F70A-4419-AB9B-21A882B96AC2}.Debug|x86.ActiveCfg = Debug|Win32
+		{3A55DD18-F70A-4419-AB9B-21A882B96AC2}.Debug|x86.Build.0 = Debug|Win32
+		{3A55DD18-F70A-4419-AB9B-21A882B96AC2}.Release|x86.ActiveCfg = Release|Win32
+		{3A55DD18-F70A-4419-AB9B-21A882B96AC2}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
